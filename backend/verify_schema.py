@@ -1,10 +1,11 @@
 
 import sys
-sys.path.insert(0, '/home/user/backend')
+from pathlib import Path
+import re
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import os
-os.environ["DATABASE_URL"] = 'postgresql://neondb_owner:npg_5DMv8dtEHBXr@ep-wandering-recipe-ajalhs3a.c-3.us-east-2.aws.neon.tech/neondb?sslmode=require'
-os.environ["SCHEMA_NAME"] = 'public'
 
 from sqlalchemy import create_engine, text
 from alembic.autogenerate import compare_metadata
@@ -14,11 +15,22 @@ from alembic.migration import MigrationContext
 from app.database import Base
 from app import models  # noqa: F401 - registers models with Base.metadata
 
-engine = create_engine('postgresql://neondb_owner:npg_5DMv8dtEHBXr@ep-wandering-recipe-ajalhs3a.c-3.us-east-2.aws.neon.tech/neondb?sslmode=require')
+database_url = os.getenv("DATABASE_URL")
+schema_name = os.getenv("SCHEMA_NAME", "public")
+
+if not database_url:
+    print("VERIFICATION_ERROR: DATABASE_URL environment variable is not set")
+    sys.exit(1)
+
+if not re.match(r"^[a-z_][a-z0-9_]{0,62}$", schema_name):
+    print("VERIFICATION_ERROR: SCHEMA_NAME must be a valid PostgreSQL identifier")
+    sys.exit(1)
+
+engine = create_engine(database_url)
 try:
     with engine.connect() as conn:
         # Set search_path for schema isolation
-        conn.execute(text('SET search_path TO ' + 'public'))
+        conn.execute(text(f'SET search_path TO "{schema_name}"'))
         conn.commit()
 
         # Configure migration context and compare

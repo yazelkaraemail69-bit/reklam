@@ -1,10 +1,12 @@
 import os
+from pathlib import Path
 from urllib.parse import urlsplit
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exception_handlers import http_exception_handler
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 # Import and initialize standard logging
 from app.logging_setup import setup_logging
@@ -113,10 +115,16 @@ app.add_middleware(
 # 2. Include the router: app.include_router(users.router)
 #
 # Example:
-from app.routers import ai, businesses
+from app.routers import ai, businesses, payments, site
 
 app.include_router(ai.router)
 app.include_router(businesses.router)
+app.include_router(payments.router)
+app.include_router(site.router)
+
+uploads_dir = Path(os.getenv("UPLOAD_DIR", "uploads")).resolve()
+uploads_dir.mkdir(parents=True, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=str(uploads_dir)), name="uploads")
 
 
 @app.get("/")

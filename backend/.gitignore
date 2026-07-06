@@ -30,5 +30,8 @@ coverage/
 # Logs
 *.log
 
+# Uploaded media
+uploads/
+
 # OS
 .DS_Store

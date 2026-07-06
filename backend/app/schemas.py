@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
 
 
 class BaseSchema(BaseModel):
@@ -127,3 +127,28 @@ class AdCopyResponse(BaseSchema):
     google_ad_headlines: list[str]
     google_ad_descriptions: list[str]
     call_to_action: str
+
+
+class IyzicoCheckoutRequest(BaseSchema):
+    business_id: int | None = Field(default=None, ge=1)
+    amount: str = Field(..., pattern=r"^\d+(\.\d{1,2})?$")
+    buyer_name: str = Field(..., min_length=2, max_length=80)
+    buyer_surname: str = Field(..., min_length=2, max_length=80)
+    email: EmailStr
+    phone: str = Field(..., min_length=7, max_length=50)
+    identity_number: str = Field(..., min_length=5, max_length=30)
+    registration_address: str = Field(..., min_length=5, max_length=255)
+    city: str = Field(..., min_length=2, max_length=120)
+    country: str = Field(default="Turkey", min_length=2, max_length=80)
+    zip_code: str | None = Field(default=None, max_length=20)
+
+
+class IyzicoCheckoutResponse(BaseSchema):
+    conversation_id: str
+    token: str | None = None
+    payment_page_url: str | None = None
+    checkout_form_content: str | None = None
+
+
+class SiteModeResponse(BaseSchema):
+    mode: str

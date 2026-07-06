@@ -74,13 +74,39 @@ export interface AdCopyResponse {
   call_to_action: string;
 }
 
+export interface IyzicoCheckoutInput {
+  business_id?: number;
+  amount: string;
+  buyer_name: string;
+  buyer_surname: string;
+  email: string;
+  phone: string;
+  identity_number: string;
+  registration_address: string;
+  city: string;
+  country: string;
+  zip_code: string;
+}
+
+export interface IyzicoCheckoutResponse {
+  conversation_id: string;
+  token?: string | null;
+  payment_page_url?: string | null;
+  checkout_form_content?: string | null;
+}
+
+export interface SiteModeResponse {
+  mode: "panel" | "showcase";
+}
+
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 async function apiFetch<T>(endpoint: string, options?: RequestInit): Promise<T> {
+  const isFormData = options?.body instanceof FormData;
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     headers: {
-      "Content-Type": "application/json",
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
       ...options?.headers,
     },
     ...options,
@@ -128,6 +154,17 @@ export function createBusiness(input: BusinessFormInput): Promise<Business> {
   });
 }
 
+export function uploadBusinessImage(businessId: number, file: File): Promise<BusinessImage> {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  return apiFetch<BusinessImage>(`/businesses/${businessId}/images/upload`, {
+    method: "POST",
+    headers: {},
+    body: formData,
+  });
+}
+
 export function generateAdCopy(input: BusinessFormInput): Promise<AdCopyResponse> {
   return apiFetch<AdCopyResponse>("/api/ai/ad-copy", {
     method: "POST",
@@ -141,6 +178,17 @@ export function generateAdCopy(input: BusinessFormInput): Promise<AdCopyResponse
       target_audience: input.target_audience || null,
     }),
   });
+}
+
+export function startIyzicoCheckout(input: IyzicoCheckoutInput): Promise<IyzicoCheckoutResponse> {
+  return apiFetch<IyzicoCheckoutResponse>("/api/payments/iyzico/checkout", {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+}
+
+export function getSiteMode(): Promise<SiteModeResponse> {
+  return apiFetch<SiteModeResponse>("/api/site/mode");
 }
 
 

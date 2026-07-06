@@ -1,11 +1,29 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+import os
+from pathlib import Path
+from uuid import uuid4
+
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session, selectinload
 
 from app import models, schemas
 from app.ai_client import generate_ad_copy
 from app.database import get_db
+from app.site_mode import SHOWCASE_MODE, set_site_mode
 
 router = APIRouter(prefix="/businesses", tags=["businesses"])
+
+ALLOWED_IMAGE_TYPES = {"image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp"}
+MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024
+
+
+def _uploads_dir() -> Path:
+    return Path(os.getenv("UPLOAD_DIR", "uploads")).resolve()
+
+
+def _public_upload_url(filename: str) -> str:
+    public_backend_url = os.getenv("PUBLIC_BACKEND_URL", "").rstrip("/")
+    path = f"/uploads/{filename}"
+    return f"{public_backend_url}{path}" if public_backend_url else path
 
 
 def _get_business_or_404(business_id: int, db: Session) -> models.Business:
@@ -36,6 +54,7 @@ def create_business(payload: schemas.BusinessCreate, db: Session = Depends(get_d
     db.add(business)
     db.commit()
     db.refresh(business)
+    set_site_mode(db, SHOWCASE_MODE)
     return _get_business_or_404(business.id, db)
 
 
@@ -74,6 +93,54 @@ def add_business_image(business_id: int, payload: schemas.BusinessImageCreate, d
         business.primary_image_url = payload.public_url
         business.primary_image_object_key = payload.object_key
         business.primary_image_original_filename = payload.original_filename
+        db.add(business)
+
+    db.commit()
+    db.refresh(image)
+    return image
+
+
+@router.post("/{business_id}/images/upload", response_model=schemas.BusinessImage, status_code=status.HTTP_201_CREATED)
+def upload_business_image(
+    business_id: int,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+):
+    business = _get_business_or_404(business_id, db)
+    extension = ALLOWED_IMAGE_TYPES.get(file.content_type or "")
+    if not extension:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Sadece JPG, PNG veya WEBP görsel yüklenebilir",
+        )
+
+    content = file.file.read(MAX_IMAGE_SIZE_BYTES + 1)
+    if len(content) > MAX_IMAGE_SIZE_BYTES:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail="Görsel boyutu en fazla 5 MB olabilir",
+        )
+
+    uploads_dir = _uploads_dir()
+    uploads_dir.mkdir(parents=True, exist_ok=True)
+    safe_filename = f"{business.id}-{uuid4().hex}{extension}"
+    target_path = uploads_dir / safe_filename
+    target_path.write_bytes(content)
+
+    image = models.BusinessImage(
+        business_id=business.id,
+        public_url=_public_upload_url(safe_filename),
+        object_key=safe_filename,
+        original_filename=file.filename or safe_filename,
+        content_type=file.content_type,
+        sort_order=len(business.images),
+    )
+    db.add(image)
+
+    if not business.primary_image_url:
+        business.primary_image_url = image.public_url
+        business.primary_image_object_key = image.object_key
+        business.primary_image_original_filename = image.original_filename
         db.add(business)
 
     db.commit()

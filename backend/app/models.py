@@ -50,3 +50,11 @@ class BusinessImage(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     business = relationship("Business", back_populates="images")
+
+
+class SiteSetting(Base):
+    __tablename__ = "site_settings"
+
+    key = Column(String(120), primary_key=True)
+    value = Column(String(255), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)

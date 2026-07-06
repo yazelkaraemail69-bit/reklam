@@ -5,22 +5,32 @@ import {
   Building2,
   Camera,
   CheckCircle2,
+  CreditCard,
+  ExternalLink,
   FileText,
+  ImagePlus,
   Loader2,
+  MapPin,
   Megaphone,
+  MessageCircle,
   MousePointerClick,
   Phone,
   Search,
+  ShieldCheck,
   Sparkles,
+  Star,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
   createBusiness,
   generateAdCopy,
+  getSiteMode,
   listBusinesses,
+  startIyzicoCheckout,
+  uploadBusinessImage,
 } from "@/lib/api"
-import type { AdCopyResponse, Business, BusinessFormInput } from "@/lib/api"
+import type { AdCopyResponse, Business, BusinessFormInput, IyzicoCheckoutInput } from "@/lib/api"
 
 const emptyForm: BusinessFormInput = {
   business_name: "",
@@ -35,14 +45,69 @@ const emptyForm: BusinessFormInput = {
   phone: "",
   whatsapp: "",
   address: "",
+  primary_image_url: "",
 
   is_published: true,
 }
 
 const categorySuggestions = ["Sağlık ve Estetik", "Yemek ve Organizasyon", "Teknik Servis", "Güzellik Salonu", "Eğitim", "Spor ve Wellness"]
 
+function createPaymentForm(business?: Business): IyzicoCheckoutInput {
+  const [firstName = "", ...surnameParts] = (business?.owner_name || "").trim().split(/\s+/).filter(Boolean)
+  return {
+    business_id: business?.id,
+    amount: "1000.00",
+    buyer_name: firstName,
+    buyer_surname: surnameParts.join(" "),
+    email: "",
+    phone: business?.phone || "",
+    identity_number: "",
+    registration_address: business?.address || "",
+    city: business?.city || "",
+    country: "Turkey",
+    zip_code: "",
+  }
+}
+
 function splitLines(value?: string | null): string[] {
   return value?.split("\n").map((item) => item.trim()).filter(Boolean) ?? []
+}
+
+function splitServices(value?: string | null): string[] {
+  return value?.split(/[\n,]+/).map((item) => item.trim()).filter(Boolean).slice(0, 6) ?? []
+}
+
+function businessImages(business: Business): string[] {
+  const urls = business.images?.map((image) => image.public_url).filter(Boolean) ?? []
+  const all = business.primary_image_url ? [business.primary_image_url, ...urls] : urls
+  return Array.from(new Set(all)).slice(0, 8)
+}
+
+function fallbackImage(): string {
+  return "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80"
+}
+
+function showcaseSections(business: Business): Array<{ title: string; text: string; image?: string }> {
+  const images = businessImages(business)
+  const services = splitServices(business.services)
+  const location = [business.district, business.city].filter(Boolean).join(", ")
+  return [
+    {
+      title: `${business.business_name} kimdir?`,
+      text: business.generated_description || business.summary,
+      image: images[1] || images[0],
+    },
+    {
+      title: `${business.niche} alanında öne çıkan hizmetler`,
+      text: services.length ? services.join(" • ") : business.services,
+      image: images[2] || images[0],
+    },
+    {
+      title: `${location || business.city} bölgesinde kolay ulaşılabilir hizmet`,
+      text: `${business.target_audience || "Yerel müşteriler"} için net bilgi, hızlı iletişim ve güven veren bir tanıtım deneyimi sunulur.`,
+      image: images[3] || images[0],
+    },
+  ]
 }
 
 function FormField({
@@ -146,7 +211,7 @@ function AdPreview({ business, draft }: { business?: Business; draft?: BusinessF
   const city = business?.city || draft?.city || "Şehir"
   const phone = business?.phone || draft?.phone || "Telefon"
   const cta = business?.call_to_action || draft?.call_to_action || "Hemen iletişime geç"
-  const image = business?.primary_image_url || "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80"
+  const image = business?.primary_image_url || draft?.primary_image_url || "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&q=80"
   const googleHeadlines = splitLines(business?.google_ad_headlines || draft?.google_ad_headlines)
   const googleDescriptions = splitLines(business?.google_ad_descriptions || draft?.google_ad_descriptions)
 
@@ -209,10 +274,287 @@ function AdPreview({ business, draft }: { business?: Business; draft?: BusinessF
   )
 }
 
+type PaymentFieldName = Exclude<keyof IyzicoCheckoutInput, "business_id">
+
+function PaymentField({
+  label,
+  name,
+  value,
+  onChange,
+  placeholder,
+  required = true,
+  type = "text",
+}: {
+  label: string
+  name: PaymentFieldName
+  value: string
+  onChange: (name: PaymentFieldName, value: string) => void
+  placeholder?: string
+  required?: boolean
+  type?: string
+}) {
+  return (
+    <label className="grid gap-2 text-sm font-semibold text-foreground">
+      <span>{label}{required ? <span className="text-destructive"> *</span> : null}</span>
+      <input
+        className="h-11 w-full rounded-md border border-input bg-background px-3 text-base shadow-sm outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/40 disabled:cursor-not-allowed disabled:opacity-60"
+        name={name}
+        onChange={(event) => onChange(name, event.target.value)}
+        placeholder={placeholder}
+        required={required}
+        type={type}
+        value={value}
+      />
+    </label>
+  )
+}
+
+function ImagePicker({
+  previews,
+  onSelect,
+  onClear,
+}: {
+  previews: string[]
+  onSelect: (files: File[]) => void
+  onClear: () => void
+}) {
+  return (
+    <div className="grid gap-3 rounded-lg border border-dashed border-border bg-muted/30 p-4">
+      <div className="flex items-start gap-3">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary"><ImagePlus className="h-5 w-5" /></span>
+        <div>
+          <p className="font-bold">İşletme görselleri</p>
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">Vitrinde kullanılacak JPG, PNG veya WEBP görselleri seçin. İlk görsel kapak olarak kullanılır.</p>
+        </div>
+      </div>
+      <input
+        accept="image/jpeg,image/png,image/webp"
+        className="block w-full text-sm text-muted-foreground file:mr-4 file:min-h-10 file:rounded-md file:border-0 file:bg-primary file:px-4 file:text-sm file:font-bold file:text-primary-foreground"
+        multiple
+        onChange={(event) => onSelect(Array.from(event.target.files ?? []))}
+        type="file"
+      />
+      {previews.length ? (
+        <>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {previews.map((src) => (
+              <img alt="Seçilen işletme görseli" className="aspect-[4/3] rounded-md object-cover" key={src} src={src} />
+            ))}
+          </div>
+          <button className="w-fit text-sm font-semibold text-muted-foreground underline-offset-4 hover:text-foreground hover:underline" onClick={onClear} type="button">Seçilen görselleri temizle</button>
+        </>
+      ) : null}
+    </div>
+  )
+}
+
+function PaymentPanel({ business }: { business?: Business }) {
+  const [paymentForm, setPaymentForm] = useState<IyzicoCheckoutInput>(() => createPaymentForm(business))
+  const [isStartingPayment, setIsStartingPayment] = useState(false)
+  const [paymentError, setPaymentError] = useState("")
+  const [paymentSuccess, setPaymentSuccess] = useState("")
+
+  useEffect(() => {
+    setPaymentForm((current) => ({
+      ...createPaymentForm(business),
+      amount: current.amount,
+      email: current.email,
+      identity_number: current.identity_number,
+      country: current.country || "Turkey",
+      zip_code: current.zip_code,
+    }))
+    setPaymentError("")
+    setPaymentSuccess("")
+  }, [business])
+
+  useEffect(() => {
+    const paymentStatus = new URLSearchParams(window.location.search).get("payment")
+    if (paymentStatus === "success") {
+      setPaymentSuccess("Ödeme sonucu başarılı olarak döndü. Iyzico panelinden işlemi kontrol edin.")
+    } else if (paymentStatus === "failure") {
+      setPaymentError("Ödeme tamamlanamadı. Müşteri farklı kartla tekrar deneyebilir.")
+    }
+  }, [])
+
+  function updatePaymentField(name: PaymentFieldName, value: string) {
+    setPaymentForm((current) => ({ ...current, [name]: value }))
+    setPaymentError("")
+    setPaymentSuccess("")
+  }
+
+  async function handlePaymentSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setPaymentError("")
+    setPaymentSuccess("")
+    setIsStartingPayment(true)
+    try {
+      const checkout = await startIyzicoCheckout({
+        ...paymentForm,
+        business_id: business?.id,
+      })
+      if (!checkout.payment_page_url) {
+        throw new Error("Iyzico ödeme sayfası bağlantısı dönmedi.")
+      }
+      window.location.assign(checkout.payment_page_url)
+    } catch (err) {
+      setPaymentError(err instanceof Error ? err.message : "Ödeme başlatılamadı. Lütfen tekrar deneyin.")
+    } finally {
+      setIsStartingPayment(false)
+    }
+  }
+
+  return (
+    <section className="rounded-lg border border-border bg-card p-4 shadow-sm sm:p-5">
+      <div className="mb-5 flex items-start gap-3">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary"><CreditCard className="h-5 w-5" /></span>
+        <div>
+          <h2 className="text-xl font-black">Iyzico ile reklam ödemesi</h2>
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">Seçili işletme için güvenli Iyzico ödeme sayfası oluşturun.</p>
+        </div>
+      </div>
+
+      {!business ? (
+        <div className="rounded-md border border-border bg-muted/40 p-4 text-sm leading-6 text-muted-foreground">Ödeme almak için önce bir işletme kaydı seçin veya yeni kayıt oluşturun.</div>
+      ) : (
+        <form className="grid gap-4" onSubmit={handlePaymentSubmit}>
+          <div className="rounded-md border border-border bg-muted/40 p-3 text-sm leading-6 text-muted-foreground">
+            <ShieldCheck className="mr-2 inline h-4 w-4 text-primary" />
+            Gizli Iyzico anahtarları backend ortam değişkenlerinde tutulur; kart bilgisi bu sitede saklanmaz.
+          </div>
+
+          <PaymentField label="Tutar (TRY)" name="amount" value={paymentForm.amount} onChange={updatePaymentField} placeholder="1000.00" />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <PaymentField label="Ad" name="buyer_name" value={paymentForm.buyer_name} onChange={updatePaymentField} placeholder="Müşteri adı" />
+            <PaymentField label="Soyad" name="buyer_surname" value={paymentForm.buyer_surname} onChange={updatePaymentField} placeholder="Müşteri soyadı" />
+          </div>
+          <PaymentField label="E-posta" name="email" value={paymentForm.email} onChange={updatePaymentField} placeholder="musteri@example.com" type="email" />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <PaymentField label="Telefon" name="phone" value={paymentForm.phone} onChange={updatePaymentField} placeholder="+90 ..." />
+            <PaymentField label="TC / Vergi no" name="identity_number" value={paymentForm.identity_number} onChange={updatePaymentField} placeholder="Iyzico alıcı kimlik no" />
+          </div>
+          <PaymentField label="Fatura adresi" name="registration_address" value={paymentForm.registration_address} onChange={updatePaymentField} placeholder="Adres" />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <PaymentField label="Şehir" name="city" value={paymentForm.city} onChange={updatePaymentField} placeholder="İstanbul" />
+            <PaymentField label="Posta kodu" name="zip_code" value={paymentForm.zip_code} onChange={updatePaymentField} placeholder="34000" required={false} />
+          </div>
+
+          {paymentError ? <p className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive" role="alert">{paymentError}</p> : null}
+          {paymentSuccess ? <p className="rounded-md border border-primary/30 bg-primary/10 px-3 py-2 text-sm text-primary" role="status">{paymentSuccess}</p> : null}
+
+          <Button className="min-h-11" disabled={isStartingPayment} type="submit">
+            {isStartingPayment ? <Loader2 className="h-4 w-4 animate-spin" /> : <ExternalLink className="h-4 w-4" />} Iyzico ödeme sayfasını aç
+          </Button>
+        </form>
+      )}
+    </section>
+  )
+}
+
+function ShowcasePage({ business }: { business: Business }) {
+  const images = businessImages(business)
+  const heroImage = images[0] || fallbackImage()
+  const services = splitServices(business.services)
+  const sections = showcaseSections(business)
+  const headlines = splitLines(business.google_ad_headlines)
+  const descriptions = splitLines(business.google_ad_descriptions)
+  const location = [business.district, business.city].filter(Boolean).join(", ") || business.city
+
+  return (
+    <main className="min-h-screen bg-slate-950 text-white">
+      <section className="relative min-h-screen overflow-hidden">
+        <img alt={`${business.business_name} kapak görseli`} className="absolute inset-0 h-full w-full object-cover opacity-75" src={heroImage} />
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-950/70 to-primary/30" aria-hidden="true" />
+        <div className="relative mx-auto flex min-h-screen w-full max-w-7xl flex-col justify-end px-4 py-10 sm:px-6 lg:px-8">
+          <div className="max-w-4xl pb-8">
+            <span className="inline-flex items-center gap-2 rounded-full bg-white/90 px-4 py-2 text-sm font-black text-slate-950">
+              <MapPin className="h-4 w-4" /> {location} · {business.category}
+            </span>
+            <h1 className="mt-6 text-4xl font-black leading-tight tracking-tight sm:text-6xl lg:text-7xl">
+              {business.generated_headline || `${business.business_name} ile ${business.niche} için güçlü tanıtım`}
+            </h1>
+            <p className="mt-5 max-w-3xl text-lg leading-8 text-white/90 sm:text-xl">
+              {business.generated_subheadline || business.summary}
+            </p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <a className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-white px-5 text-sm font-black text-slate-950 transition hover:bg-white/90" href={`tel:${business.phone}`}>
+                <Phone className="h-4 w-4" /> {business.call_to_action || "Hemen ara"}
+              </a>
+              {business.whatsapp ? (
+                <a className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-white/30 bg-white/10 px-5 text-sm font-black text-white backdrop-blur transition hover:bg-white/20" href={`https://wa.me/${business.whatsapp.replace(/\D/g, "")}`}>
+                  <MessageCircle className="h-4 w-4" /> WhatsApp ile yaz
+                </a>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto grid w-full max-w-7xl gap-4 px-4 py-8 sm:px-6 md:grid-cols-4 lg:px-8">
+        {(images.length ? images : [heroImage]).slice(0, 4).map((src, index) => (
+          <img
+            alt={`${business.business_name} vitrin görseli ${index + 1}`}
+            className={`rounded-2xl object-cover shadow-2xl shadow-black/30 ${index === 0 ? "aspect-[16/10] md:col-span-2 md:row-span-2 md:h-full" : "aspect-[4/3]"}`}
+            key={src}
+            src={src}
+          />
+        ))}
+      </section>
+
+      <section className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-8 sm:px-6 lg:grid-cols-3 lg:px-8">
+        {sections.map((section, index) => (
+          <article className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06] shadow-xl shadow-black/20 backdrop-blur" key={section.title}>
+            <img alt={section.title} className="aspect-[16/10] w-full object-cover" src={section.image || heroImage} />
+            <div className="p-5">
+              <p className="text-sm font-black uppercase tracking-wide text-primary">0{index + 1}</p>
+              <h2 className="mt-2 text-2xl font-black leading-tight">{section.title}</h2>
+              <p className="mt-3 text-sm leading-7 text-white/80">{section.text}</p>
+            </div>
+          </article>
+        ))}
+      </section>
+
+      <section className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-8 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
+        <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-6">
+          <h2 className="text-3xl font-black">Neden {business.business_name}?</h2>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            {(services.length ? services : [business.niche, business.category, "Hızlı iletişim", "Yerel hizmet"]).map((service) => (
+              <div className="flex gap-3 rounded-xl bg-white/10 p-4" key={service}>
+                <Star className="mt-1 h-5 w-5 shrink-0 text-primary" />
+                <p className="text-sm font-bold leading-6">{service}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+        <aside className="rounded-2xl border border-white/10 bg-white p-6 text-slate-950">
+          <h2 className="text-2xl font-black">İletişim</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-600">{business.address || location}</p>
+          <a className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-md bg-slate-950 px-5 text-sm font-black text-white transition hover:bg-slate-800" href={`tel:${business.phone}`}>
+            <Phone className="h-4 w-4" /> {business.phone}
+          </a>
+          {descriptions.length ? (
+            <div className="mt-5 space-y-2">
+              {descriptions.map((description) => <p className="rounded-lg bg-slate-100 p-3 text-sm leading-6" key={description}>{description}</p>)}
+            </div>
+          ) : null}
+        </aside>
+      </section>
+
+      {headlines.length ? (
+        <section className="mx-auto flex w-full max-w-7xl flex-wrap gap-3 px-4 pb-12 sm:px-6 lg:px-8">
+          {headlines.map((headline) => <span className="rounded-full border border-white/15 px-4 py-2 text-sm font-bold text-white/80" key={headline}>{headline}</span>)}
+        </section>
+      ) : null}
+    </main>
+  )
+}
+
 function App() {
   const [businesses, setBusinesses] = useState<Business[]>([])
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [form, setForm] = useState<BusinessFormInput>(emptyForm)
+  const [imageFiles, setImageFiles] = useState<File[]>([])
+  const [imagePreviews, setImagePreviews] = useState<string[]>([])
+  const [siteMode, setSiteMode] = useState<"panel" | "showcase">("panel")
 
   const [isLoading, setIsLoading] = useState(true)
   const [isGenerating, setIsGenerating] = useState(false)
@@ -237,18 +579,71 @@ function App() {
     }
   }, [])
 
+  useEffect(() => {
+    let isMounted = true
+
+    function refreshSiteMode() {
+      getSiteMode()
+        .then((response) => {
+          if (isMounted) setSiteMode(response.mode)
+        })
+        .catch(() => {
+          // Keep the current UI mode if the backend is temporarily unavailable.
+        })
+    }
+
+    refreshSiteMode()
+    const intervalId = window.setInterval(refreshSiteMode, 15000)
+    return () => {
+      isMounted = false
+      window.clearInterval(intervalId)
+    }
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      imagePreviews.forEach((preview) => URL.revokeObjectURL(preview))
+    }
+  }, [imagePreviews])
+
 
   const selectedBusiness = useMemo(
     () => businesses.find((business) => business.id === selectedId) ?? businesses[0],
     [businesses, selectedId],
   )
+  const hasDraft = Boolean(
+    form.business_name.trim() ||
+    form.category.trim() ||
+    form.niche.trim() ||
+    form.city.trim() ||
+    form.summary.trim() ||
+    imagePreviews.length,
+  )
+  const draftPreview: BusinessFormInput = {
+    ...form,
+    primary_image_url: form.primary_image_url || imagePreviews[0] || "",
+  }
 
-  const readyForAi = form.business_name.trim() && form.category.trim() && form.niche.trim() && form.city.trim() && form.summary.trim().length >= 20 && form.services.trim()
+  const readyForAi = Boolean(form.business_name.trim() && form.category.trim() && form.niche.trim() && form.city.trim() && form.summary.trim().length >= 20 && form.services.trim())
 
   function updateField(name: keyof BusinessFormInput, value: string) {
     setForm((current) => ({ ...current, [name]: value }))
     setError("")
     setSuccess("")
+  }
+
+  function handleImageSelect(files: File[]) {
+    imagePreviews.forEach((preview) => URL.revokeObjectURL(preview))
+    setImageFiles(files)
+    setImagePreviews(files.map((file) => URL.createObjectURL(file)))
+    setError("")
+    setSuccess("")
+  }
+
+  function clearImages() {
+    imagePreviews.forEach((preview) => URL.revokeObjectURL(preview))
+    setImageFiles([])
+    setImagePreviews([])
   }
 
   function applyGenerated(copy: AdCopyResponse) {
@@ -284,18 +679,38 @@ function App() {
     setSuccess("")
     setIsSaving(true)
     try {
-      const created = await createBusiness(form)
+      let payload = form
+      if (readyForAi && !form.generated_headline) {
+        const copy = await generateAdCopy(form)
+        payload = {
+          ...form,
+          generated_headline: copy.headline,
+          generated_subheadline: copy.subheadline,
+          generated_description: copy.description,
+          google_ad_headlines: copy.google_ad_headlines.join("\n"),
+          google_ad_descriptions: copy.google_ad_descriptions.join("\n"),
+          call_to_action: copy.call_to_action,
+        }
+      }
+      const created = await createBusiness(payload)
+      await Promise.all(imageFiles.map((file) => uploadBusinessImage(created.id, file)))
       const refreshed = await listBusinesses()
       setBusinesses(refreshed)
       setSelectedId(created.id)
       setForm(emptyForm)
+      clearImages()
+      setSiteMode("showcase")
 
-      setSuccess("İşletme kaydı oluşturuldu ve reklam sayfası sisteme eklendi.")
+      setSuccess("İşletme kaydı oluşturuldu, görseller yüklendi ve vitrin yayına alındı.")
     } catch (err) {
       setError(err instanceof Error ? err.message : "Kayıt oluşturulamadı. Lütfen tekrar deneyin.")
     } finally {
       setIsSaving(false)
     }
+  }
+
+  if (siteMode === "showcase" && selectedBusiness) {
+    return <ShowcasePage business={selectedBusiness} />
   }
 
   return (
@@ -355,6 +770,8 @@ function App() {
               </div>
               <FormField label="İlçe" name="district" value={form.district} onChange={updateField} placeholder="Kadıköy" />
               <TextAreaField label="Adres" name="address" value={form.address} onChange={updateField} placeholder="Kısa adres bilgisi" rows={2} />
+              <FormField label="Kapak görseli URL" name="primary_image_url" value={form.primary_image_url || ""} onChange={updateField} placeholder="https://..." />
+              <ImagePicker previews={imagePreviews} onSelect={handleImageSelect} onClear={clearImages} />
 
 
 
@@ -394,8 +811,8 @@ function App() {
               <span className="w-fit rounded-full bg-primary/10 px-3 py-1 text-sm font-bold text-primary">Google Ads hazır</span>
             </div>
           </div>
-          <AdPreview business={selectedBusiness} draft={selectedBusiness ? undefined : form} />
-          {!selectedBusiness ? <AdPreview draft={form} /> : null}
+          <AdPreview business={hasDraft ? undefined : selectedBusiness} draft={hasDraft ? draftPreview : selectedBusiness ? undefined : form} />
+          <PaymentPanel business={selectedBusiness} />
         </section>
       </div>
     </main>
