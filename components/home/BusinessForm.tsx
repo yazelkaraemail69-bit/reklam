@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import type { DemoBusinessData } from "@/lib/types";
 import { BUSINESS_CATEGORIES } from "@/lib/constants";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
@@ -9,12 +8,35 @@ import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
 import { Card, CardBody, CardHeader } from "@/components/ui/Card";
 import { PlusIcon, SparklesIcon, TrashIcon } from "@/components/ui/icons";
+import { PhotoPickerField } from "@/components/home/PhotoPickerField";
 
-interface BusinessFormProps {
-  onSubmit: (data: DemoBusinessData) => void;
+export interface BusinessFormService {
+  title: string;
+  description: string;
 }
 
-const EMPTY_FORM: DemoBusinessData = {
+/** `app/page.tsx`'teki `Business` tipiyle (id hariç) birebir aynı alanlar. */
+export interface BusinessFormValues {
+  name: string;
+  slogan: string;
+  description: string;
+  category: string;
+  city: string;
+  phone: string;
+  whatsapp: string;
+  logoUrl: string;
+  coverImageUrl: string;
+  services: BusinessFormService[];
+}
+
+interface BusinessFormProps {
+  initialValues?: BusinessFormValues;
+  onSubmit: (data: BusinessFormValues) => void;
+  onCancel?: () => void;
+  submitLabel?: string;
+}
+
+const EMPTY_FORM: BusinessFormValues = {
   name: "",
   slogan: "",
   description: "",
@@ -28,19 +50,20 @@ const EMPTY_FORM: DemoBusinessData = {
 };
 
 /**
- * Ana sayfadaki hızlı önizleme formu. Admin panelindeki tam `BusinessForm`
- * bileşeninden farklı olarak sunucuya hiçbir istek atmaz; girilen veriler
+ * İşletme ekleme/düzenleme formu. Admin panelindeki tam `BusinessForm`
+ * bileşeninden farklı olarak sunucuya hiçbir istek atmaz: fotoğraflar
+ * `PhotoPickerField` ile doğrudan tarayıcıda base64'e çevrilir, form verisi
  * yalnızca üst bileşen (`app/page.tsx`) tarafından `localStorage`'a yazılır.
  */
-export function BusinessForm({ onSubmit }: BusinessFormProps) {
-  const [form, setForm] = useState<DemoBusinessData>(EMPTY_FORM);
+export function BusinessForm({ initialValues, onSubmit, onCancel, submitLabel }: BusinessFormProps) {
+  const [form, setForm] = useState<BusinessFormValues>(initialValues ?? EMPTY_FORM);
   const [error, setError] = useState("");
 
-  function updateField<K extends keyof DemoBusinessData>(key: K, value: DemoBusinessData[K]) {
+  function updateField<K extends keyof BusinessFormValues>(key: K, value: BusinessFormValues[K]) {
     setForm((current) => ({ ...current, [key]: value }));
   }
 
-  function updateService(index: number, patch: Partial<DemoBusinessData["services"][number]>) {
+  function updateService(index: number, patch: Partial<BusinessFormService>) {
     setForm((current) => {
       const next = [...current.services];
       next[index] = { ...next[index], ...patch };
@@ -67,7 +90,7 @@ export function BusinessForm({ onSubmit }: BusinessFormProps) {
     setError("");
 
     if (!form.name.trim() || !form.whatsapp.trim() || !form.coverImageUrl.trim()) {
-      setError("Lütfen işletme adı, WhatsApp numarası ve kapak görseli alanlarını doldurun.");
+      setError("Lütfen işletme adı, WhatsApp numarası ve kapak fotoğrafı alanlarını doldurun.");
       return;
     }
 
@@ -86,11 +109,12 @@ export function BusinessForm({ onSubmit }: BusinessFormProps) {
             <SparklesIcon className="h-3.5 w-3.5" /> Ücretsiz Anında Önizleme
           </span>
           <h1 className="text-3xl font-black text-emerald-950 sm:text-4xl">
-            Reklam Vitrininizi Şimdi Oluşturun
+            {initialValues ? "İşletme Bilgilerini Düzenle" : "Reklam Vitrininizi Şimdi Oluşturun"}
           </h1>
           <p className="mt-3 text-base leading-7 text-slate-600 sm:text-lg">
-            Bilgilerinizi girin, işletmenizin vitrin sayfasının nasıl görüneceğini anında görün.
-            Kayıt gerekmez; verileriniz yalnızca bu tarayıcıda saklanır.
+            Bilgilerinizi girin, fotoğraflarınızı bilgisayarınızdan doğrudan yükleyin; vitrin
+            sayfanızın nasıl görüneceğini anında görün. Kayıt gerekmez, URL uğraşmazsınız;
+            verileriniz yalnızca bu tarayıcıda saklanır.
           </p>
         </div>
 
@@ -152,7 +176,11 @@ export function BusinessForm({ onSubmit }: BusinessFormProps) {
 
           <Card>
             <CardHeader>
-              <h2 className="text-lg font-black text-emerald-950">İletişim ve Görseller</h2>
+              <h2 className="text-lg font-black text-emerald-950">İletişim ve Fotoğraflar</h2>
+              <p className="mt-1 text-sm text-slate-500">
+                Fotoğrafları bilgisayarınızdan veya telefonunuzdan doğrudan seçin; bağlantı (URL)
+                girmenize gerek yok.
+              </p>
             </CardHeader>
             <CardBody className="grid gap-5 sm:grid-cols-2">
               <Input
@@ -163,20 +191,19 @@ export function BusinessForm({ onSubmit }: BusinessFormProps) {
                 placeholder="905551234567"
                 hint="Ülke kodu ile, sadece rakam. Örn: 905551234567"
               />
-              <Input
-                label="Logo URL"
+              <PhotoPickerField
+                label="Logo"
                 value={form.logoUrl}
-                onChange={(e) => updateField("logoUrl", e.target.value)}
-                placeholder="https://..."
+                onChange={(value) => updateField("logoUrl", value)}
+                hint="Kare oranlı, şeffaf arka planlı bir logo idealdir."
               />
               <div className="sm:col-span-2">
-                <Input
-                  label="Kapak Görseli URL"
+                <PhotoPickerField
+                  label="Kapak Fotoğrafı"
                   required
                   value={form.coverImageUrl}
-                  onChange={(e) => updateField("coverImageUrl", e.target.value)}
-                  placeholder="https://..."
-                  hint="Vitrin sayfanızın üst kısmında büyük görsel olarak kullanılır."
+                  onChange={(value) => updateField("coverImageUrl", value)}
+                  hint="Vitrin sayfanızın en üstünde büyük görsel olarak kullanılır."
                 />
               </div>
             </CardBody>
@@ -235,9 +262,14 @@ export function BusinessForm({ onSubmit }: BusinessFormProps) {
             </p>
           ) : null}
 
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-3">
+            {onCancel ? (
+              <Button type="button" variant="ghost" onClick={onCancel}>
+                Vazgeç
+              </Button>
+            ) : null}
             <Button type="submit" size="lg">
-              Vitrinimi Oluştur
+              {submitLabel ?? "Vitrinimi Oluştur"}
             </Button>
           </div>
         </form>

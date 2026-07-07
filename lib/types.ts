@@ -53,22 +53,3 @@ export interface SessionPayload {
   role: "admin";
   issuedAt: number;
 }
-
-/**
- * Ana sayfadaki "formdan vitrine dönüşüm" demosu için `localStorage`'da
- * saklanan hafif işletme verisi. Tam `Business` tipinden farklı olarak
- * sunucu tarafında hiçbir karşılığı yoktur; tamamen istemci (client-side)
- * bir önizleme mekanizmasıdır.
- */
-export interface DemoBusinessData {
-  name: string;
-  slogan: string;
-  description: string;
-  category: string;
-  city: string;
-  phone: string;
-  whatsapp: string;
-  logoUrl: string;
-  coverImageUrl: string;
-  services: BusinessService[];
-}

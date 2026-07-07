@@ -55,3 +55,13 @@ export async function compressImageFile(file: File): Promise<File> {
     return file;
   }
 }
+
+/** Bir dosyayı/blob'u base64 `data:` URL'sine çevirir. Sadece tarayıcıda çalışır. */
+export function fileToDataUrl(file: File | Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(new Error("Dosya okunamadı."));
+    reader.readAsDataURL(file);
+  });
+}
