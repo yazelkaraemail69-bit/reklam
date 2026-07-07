@@ -40,3 +40,6 @@ next-env.d.ts
 
 # local data store fallback (dev only, do not ship real data in git)
 /data/*.local.json
+
+# local image upload fallback (dev only, used when Vercel Blob isn't configured)
+/public/uploads/

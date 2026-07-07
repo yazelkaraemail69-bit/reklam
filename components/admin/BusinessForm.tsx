@@ -10,6 +10,7 @@ import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
 import { Card, CardBody, CardHeader } from "@/components/ui/Card";
 import { LoaderIcon, PlusIcon, TrashIcon } from "@/components/ui/icons";
+import { ImageUploadField } from "@/components/admin/ImageUploadField";
 
 interface BusinessFormProps {
   mode: "create" | "edit";
@@ -69,7 +70,12 @@ export function BusinessForm({ mode, initialData }: BusinessFormProps) {
   const router = useRouter();
   const [form, setForm] = useState<BusinessInput>(() => toFormState(initialData));
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadingCount, setUploadingCount] = useState(0);
   const [error, setError] = useState("");
+
+  function handleUploadingChange(uploading: boolean) {
+    setUploadingCount((count) => Math.max(0, count + (uploading ? 1 : -1)));
+  }
 
   function updateField<K extends keyof BusinessInput>(key: K, value: BusinessInput[K]) {
     setForm((current) => ({ ...current, [key]: value }));
@@ -123,11 +129,19 @@ export function BusinessForm({ mode, initialData }: BusinessFormProps) {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
+
+    if (uploadingCount > 0) {
+      setError("Görseller yüklenirken lütfen bekleyin.");
+      return;
+    }
+
     setIsSubmitting(true);
 
     const cleanedForm: BusinessInput = {
       ...form,
-      galleryImages: form.galleryImages.filter((url) => url.trim().length > 0),
+      galleryImages: form.galleryImages.filter(
+        (url) => url.trim().length > 0 && !url.startsWith("blob:")
+      ),
       services: form.services.filter((service) => service.title.trim().length > 0),
     };
 
@@ -263,46 +277,43 @@ export function BusinessForm({ mode, initialData }: BusinessFormProps) {
         <CardHeader>
           <h2 className="text-lg font-black text-emerald-950">Görseller</h2>
           <p className="mt-1 text-sm text-slate-500">
-            Görsel adreslerini (URL) girin. Herhangi bir görsel barındırma servisinden alabilirsiniz.
+            Bilgisayarınızdan veya telefonunuzdan doğrudan görsel yükleyebilirsiniz; dilerseniz
+            bir bağlantı (URL) da yapıştırabilirsiniz.
           </p>
         </CardHeader>
-        <CardBody className="space-y-5">
-          <Input
-            label="Logo URL"
-            value={form.logoUrl}
-            onChange={(e) => updateField("logoUrl", e.target.value)}
-            placeholder="https://..."
-          />
-          <Input
-            label="Kapak Görseli URL"
-            required
-            value={form.coverImageUrl}
-            onChange={(e) => updateField("coverImageUrl", e.target.value)}
-            placeholder="https://..."
-          />
+        <CardBody className="space-y-6">
+          <div className="grid gap-5 sm:grid-cols-2">
+            <ImageUploadField
+              label="Logo"
+              value={form.logoUrl ?? ""}
+              onChange={(url) => updateField("logoUrl", url)}
+              onUploadingChange={handleUploadingChange}
+              hint="Kare oranlı, şeffaf arka planlı bir logo idealdir."
+            />
+            <ImageUploadField
+              label="Kapak Görseli"
+              required
+              value={form.coverImageUrl}
+              onChange={(url) => updateField("coverImageUrl", url)}
+              onUploadingChange={handleUploadingChange}
+              hint="Sayfanın en üstünde, geniş bir görsel olarak gösterilir."
+            />
+          </div>
 
           <div className="space-y-3">
             <span className="text-sm font-semibold text-emerald-950">Galeri Görselleri</span>
-            {form.galleryImages.map((url, index) => (
-              <div key={index} className="flex gap-2">
-                <input
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+              {form.galleryImages.map((url, index) => (
+                <ImageUploadField
+                  key={index}
+                  compact
                   value={url}
-                  onChange={(e) => updateGalleryImage(index, e.target.value)}
-                  placeholder="https://..."
-                  className="h-11 w-full rounded-lg border border-slate-300 bg-white px-3.5 text-base outline-none focus:border-brand focus:ring-2 focus:ring-brand/30"
+                  onChange={(value) => updateGalleryImage(index, value)}
+                  onRemove={() => removeGalleryImage(index)}
+                  onUploadingChange={handleUploadingChange}
                 />
-                <Button
-                  type="button"
-                  variant="danger"
-                  size="md"
-                  className="w-11 shrink-0 p-0"
-                  onClick={() => removeGalleryImage(index)}
-                  aria-label="Görseli kaldır"
-                >
-                  <TrashIcon className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
+              ))}
+            </div>
             <Button type="button" variant="outline" size="sm" onClick={addGalleryImage}>
               <PlusIcon className="h-4 w-4" /> Görsel Ekle
             </Button>
@@ -447,9 +458,13 @@ export function BusinessForm({ mode, initialData }: BusinessFormProps) {
         <Button type="button" variant="ghost" onClick={() => router.push("/admin")}>
           Vazgeç
         </Button>
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? <LoaderIcon className="h-4 w-4" /> : null}
-          {mode === "create" ? "İşletmeyi Oluştur" : "Değişiklikleri Kaydet"}
+        <Button type="submit" disabled={isSubmitting || uploadingCount > 0}>
+          {isSubmitting || uploadingCount > 0 ? <LoaderIcon className="h-4 w-4" /> : null}
+          {uploadingCount > 0
+            ? "Görseller yükleniyor..."
+            : mode === "create"
+              ? "İşletmeyi Oluştur"
+              : "Değişiklikleri Kaydet"}
         </Button>
       </div>
     </form>

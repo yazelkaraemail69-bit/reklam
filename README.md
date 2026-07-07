@@ -11,6 +11,9 @@ bir Next.js SaaS platformu.
 - Her işletme için özel URL: `siteniz.com/isletme-adi`
 - Şifre korumalı **Admin Paneli**: işletme ekleme/düzenleme/silme, yayın durumu
 - Sayfa altına sabitlenmiş **WhatsApp iletişim butonu**
+- Admin panelinden **doğrudan görsel yükleme** (logo, kapak, galeri): sürükle-bırak
+  veya dosya seçici ile, URL uğraşı olmadan; büyük fotoğraflar tarayıcıda otomatik
+  sıkıştırılır
 - Her işletmeye özel ve platform geneli **Script Injection** (Google Analytics,
   Meta Pixel, GTM, reklam takip kodları vb.)
 - `next/image` ve `next/link` ile optimize görsel/link yönetimi
@@ -26,6 +29,7 @@ bir Next.js SaaS platformu.
 | Kimlik doğrulama | HMAC imzalı cookie oturum (Node `crypto`) | Ekstra bağımlılık yok, `proxy.ts` (Next 16 middleware) ile korunuyor |
 | Veri deposu | JSON dosyası (yerel) + Upstash Redis REST (üretim, opsiyonel) | Vercel serverless'ta dosya sistemi salt-okunur olduğundan kalıcı yazım için Upstash önerilir |
 | Görseller | `next/image` + `images.unoptimized: true` | İşletmeler herhangi bir CDN'den görsel URL'si girebilir; SSRF riski ve `remotePatterns` bakımı olmadan çalışır |
+| Görsel yükleme | `@vercel/blob` (üretim, opsiyonel) + yerel `public/uploads` (geliştirme) | Upstash deseniyle birebir aynı mantık: kalıcı depolama için Blob önerilir, yapılandırılmazsa yerelde çalışmaya devam eder |
 
 ## Kurulum
 
@@ -46,6 +50,7 @@ Tarayıcıda `http://localhost:3000` adresini açın. Admin paneline
 - `ADMIN_PASSWORD` — Admin paneli giriş şifresi (**zorunlu, değiştirin**)
 - `SESSION_SECRET` — Oturum cookie'sini imzalamak için rastgele, uzun bir anahtar (**zorunlu, değiştirin**)
 - `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` — Kalıcı veri deposu (opsiyonel ama üretim için önerilir)
+- `BLOB_READ_WRITE_TOKEN` — Yüklenen görseller için kalıcı depolama (opsiyonel ama üretim için önerilir)
 - `NEXT_PUBLIC_SITE_URL` — Canlı domain adresiniz (SEO/OG etiketleri için)
 
 ## Vercel'e Deploy
@@ -60,6 +65,10 @@ Tarayıcıda `http://localhost:3000` adresini açın. Admin paneline
    otomatik olarak projenize ekler. Bu adım atlanırsa admin panelinden
    yapılan değişiklikler geçici olur (fonksiyon örneği yeniden başladığında
    sıfırlanabilir); okuma/görüntüleme her zaman çalışır.
+5. **(Önerilir) Yüklenen görseller için:** Aynı **Storage** sekmesinden
+   **Blob** entegrasyonunu tek tıkla ekleyin. Bu işlem `BLOB_READ_WRITE_TOKEN`
+   değişkenini otomatik ekler. Bu adım atlanırsa admin panelinden yüklenen
+   görseller kalıcı olmaz (fonksiyon örneği yeniden başladığında kaybolur).
 
 ## Klasör Yapısı
 
@@ -81,14 +90,17 @@ app/
     auth/login, logout    # Oturum açma/kapama
     businesses/           # CRUD uç noktaları
     settings/             # Site ayarları uç noktası
+    upload/                # Görsel yükleme uç noktası (Blob + yerel fallback)
 components/
   ui/                     # Ortak, yeniden kullanılabilir arayüz bileşenleri
   marketing/              # Landing sayfası bileşenleri
   showcase/               # İşletme vitrin sayfası bileşenleri
-  admin/                  # Admin paneli bileşenleri
+  admin/                  # Admin paneli bileşenleri (ImageUploadField dahil)
   common/ScriptInjector   # Script injection çalışma zamanı bileşeni
 lib/
   store.ts                # Veri erişim katmanı (JSON + Upstash)
+  upload.ts               # Görsel depolama katmanı (Blob + yerel dosya)
+  client-image.ts         # Tarayıcıda görsel sıkıştırma (yükleme öncesi)
   auth.ts                 # Oturum imzalama/doğrulama
   types.ts                # Paylaşılan TypeScript tipleri
   validation.ts           # API girdi doğrulama/normalize
@@ -96,6 +108,8 @@ lib/
 data/
   businesses.json         # Örnek/varsayılan işletme verisi
   settings.json           # Varsayılan site ayarları
+public/
+  uploads/                # (yerel, git-ignored) Blob yapılandırılmadığında yüklenen görseller
 proxy.ts                  # Next.js 16 middleware (admin route koruması)
 ```
 
