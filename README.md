@@ -1,48 +1,109 @@
-# Reklam Sitesi
+# Reklam Vitrini
 
-İşletme bilgileri, görseli, bölgesi ve hizmetleriyle reklam sayfası hazırlayan React + FastAPI uygulaması.
+İşletmelerin kendi özel URL'lerinde (`/isletme-adi`) profesyonel bir reklam/tanıtım
+vitrini oluşturabildiği, admin panelinden yönetilen çoklu kiracılı (multi-tenant)
+bir Next.js SaaS platformu.
 
-## Geliştirme
+## Özellikler
 
-- Frontend: `web/`
-- Backend: `backend/`
-- Frontend API adresi için `web/.env.example` dosyasını `web/.env` olarak kopyalayın.
-- Backend değişkenleri için `backend/.env.example` dosyasını `backend/.env` olarak kopyalayın.
+- **Next.js 16 App Router** + TypeScript + Tailwind CSS 4 (mobile-first)
+- **Marka paleti:** Yeşil `#22C55E`, Koyu Yeşil `#064E3B`, Beyaz `#FFFFFF`
+- Her işletme için özel URL: `siteniz.com/isletme-adi`
+- Şifre korumalı **Admin Paneli**: işletme ekleme/düzenleme/silme, yayın durumu
+- Sayfa altına sabitlenmiş **WhatsApp iletişim butonu**
+- Her işletmeye özel ve platform geneli **Script Injection** (Google Analytics,
+  Meta Pixel, GTM, reklam takip kodları vb.)
+- `next/image` ve `next/link` ile optimize görsel/link yönetimi
+- `robots.ts` ve `sitemap.ts` ile otomatik SEO dosyaları
+- Vercel'de tek tıkla deploy edilebilir, sıfır ek servis olmadan çalışır (demo verisiyle)
 
-## Iyzico
+## Teknoloji Kararları
 
-Ödeme başlatma endpoint'i backend tarafındadır: `POST /api/payments/iyzico/checkout`.
+| Konu | Karar | Neden |
+| --- | --- | --- |
+| Framework | Next.js 16 (App Router, Turbopack) | Güncel, Vercel ile birebir uyumlu |
+| Stil | Tailwind CSS 4 (CSS-first `@theme`) | Sıfır config riski, küçük bundle |
+| Kimlik doğrulama | HMAC imzalı cookie oturum (Node `crypto`) | Ekstra bağımlılık yok, `proxy.ts` (Next 16 middleware) ile korunuyor |
+| Veri deposu | JSON dosyası (yerel) + Upstash Redis REST (üretim, opsiyonel) | Vercel serverless'ta dosya sistemi salt-okunur olduğundan kalıcı yazım için Upstash önerilir |
+| Görseller | `next/image` + `images.unoptimized: true` | İşletmeler herhangi bir CDN'den görsel URL'si girebilir; SSRF riski ve `remotePatterns` bakımı olmadan çalışır |
 
-Gerekli değişkenler:
-
-- `IYZICO_API_KEY`
-- `IYZICO_SECRET_KEY`
-- `IYZICO_BASE_URL`
-- `IYZICO_CALLBACK_URL`
-- `FRONTEND_URL`
-
-Önce sandbox ortamında test edin. Canlıya geçerken Iyzico panelindeki canlı API bilgilerini ve canlı base URL'i kullanın.
-
-## Görsel Yükleme ve Vitrin
-
-Müşteri panelinden işletme bilgileri ve görseller kaydedilince site modu `showcase` olur ve ana sayfa işletmenin tanıtım vitrini olarak açılır.
-
-Yüklenen görseller backend'de `UPLOAD_DIR` klasörüne kaydedilir ve `/uploads/...` adresinden servis edilir. Vercel gibi serverless ortamlarda bu klasör kalıcı olmayacağı için canlı ortamda S3/R2/Supabase Storage benzeri object storage kullanılmalıdır.
-
-## Telegram ile Panele Dönme
-
-Telegram bot webhook endpoint'i:
-
-`POST /api/site/telegram/{TELEGRAM_WEBHOOK_SECRET}`
-
-Botunuza `/start` komutu geldiğinde backend site modunu tekrar `panel` yapar. Güvenlik için:
-
-- `TELEGRAM_BOT_TOKEN` sadece backend ortam değişkeninde kalmalı.
-- Webhook URL'inde `TELEGRAM_WEBHOOK_SECRET` kullanılmalı.
-- Mümkünse `TELEGRAM_ADMIN_CHAT_ID` tanımlanmalı; böylece sadece sizin Telegram hesabınız komut verebilir.
-
-Telegram webhook örneği:
+## Kurulum
 
 ```bash
-curl "https://api.telegram.org/bot<TELEGRAM_BOT_TOKEN>/setWebhook?url=https://backend-domaininiz.com/api/site/telegram/<TELEGRAM_WEBHOOK_SECRET>"
+npm install
+cp .env.example .env
+npm run dev
 ```
+
+Tarayıcıda `http://localhost:3000` adresini açın. Admin paneline
+`http://localhost:3000/admin/login` üzerinden, `.env` dosyasındaki
+`ADMIN_PASSWORD` ile giriş yapabilirsiniz (varsayılan: `admin123`, **mutlaka değiştirin**).
+
+## Ortam Değişkenleri
+
+`.env.example` dosyasına bakın. Özet:
+
+- `ADMIN_PASSWORD` — Admin paneli giriş şifresi (**zorunlu, değiştirin**)
+- `SESSION_SECRET` — Oturum cookie'sini imzalamak için rastgele, uzun bir anahtar (**zorunlu, değiştirin**)
+- `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` — Kalıcı veri deposu (opsiyonel ama üretim için önerilir)
+- `NEXT_PUBLIC_SITE_URL` — Canlı domain adresiniz (SEO/OG etiketleri için)
+
+## Vercel'e Deploy
+
+1. Bu repoyu GitHub'a push edin ve Vercel'de "Import Project" ile bağlayın.
+2. Vercel proje ayarlarında **Environment Variables** kısmına en azından
+   `ADMIN_PASSWORD` ve `SESSION_SECRET` değerlerini girin.
+3. Deploy edin — ek yapılandırma gerekmez, `next build` otomatik çalışır.
+4. **(Önerilir) Kalıcı veri için:** Vercel projenizde **Storage** sekmesine
+   girip **Upstash for Redis** entegrasyonunu tek tıkla ekleyin. Bu işlem
+   `UPSTASH_REDIS_REST_URL` ve `UPSTASH_REDIS_REST_TOKEN` değişkenlerini
+   otomatik olarak projenize ekler. Bu adım atlanırsa admin panelinden
+   yapılan değişiklikler geçici olur (fonksiyon örneği yeniden başladığında
+   sıfırlanabilir); okuma/görüntüleme her zaman çalışır.
+
+## Klasör Yapısı
+
+```
+app/
+  layout.tsx              # Kök layout, genel script injection
+  page.tsx                # Platform tanıtım (landing) sayfası
+  globals.css             # Tailwind + marka renkleri (@theme)
+  robots.ts, sitemap.ts   # SEO dosyaları
+  [slug]/                 # İşletme vitrin sayfası (/isletme-adi)
+  admin/
+    login/                # Giriş sayfası (herkese açık)
+    (dashboard)/          # Şifre korumalı panel (proxy.ts ile korunur)
+      page.tsx            # İşletme listesi
+      businesses/new/     # Yeni işletme formu
+      businesses/[id]/    # İşletme düzenleme formu
+      settings/           # Genel site ayarları + script injection
+  api/
+    auth/login, logout    # Oturum açma/kapama
+    businesses/           # CRUD uç noktaları
+    settings/             # Site ayarları uç noktası
+components/
+  ui/                     # Ortak, yeniden kullanılabilir arayüz bileşenleri
+  marketing/              # Landing sayfası bileşenleri
+  showcase/               # İşletme vitrin sayfası bileşenleri
+  admin/                  # Admin paneli bileşenleri
+  common/ScriptInjector   # Script injection çalışma zamanı bileşeni
+lib/
+  store.ts                # Veri erişim katmanı (JSON + Upstash)
+  auth.ts                 # Oturum imzalama/doğrulama
+  types.ts                # Paylaşılan TypeScript tipleri
+  validation.ts           # API girdi doğrulama/normalize
+  utils.ts, constants.ts
+data/
+  businesses.json         # Örnek/varsayılan işletme verisi
+  settings.json           # Varsayılan site ayarları
+proxy.ts                  # Next.js 16 middleware (admin route koruması)
+```
+
+## Performans Notları
+
+- Tüm bileşenler varsayılan olarak Server Component'tir; sadece etkileşim
+  gerektiren (form, buton, oturum) bileşenler `"use client"` ile işaretlenmiştir.
+- `next/image` ile lazy-loading ve layout-shift önleme sağlanır.
+- Admin panelindeki değişiklikler `router.refresh()` ile sadece ilgili
+  Server Component verisini yeniler; gereksiz tam sayfa yeniden render
+  edilmez.

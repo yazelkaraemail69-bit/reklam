@@ -1,115 +1,42 @@
-# Sandbox system files - DO NOT TRACK (added by Appifex)
-/.bash_logout
-/.bashrc
-/.bash_history
-/.bash_profile
-/.profile
-/.gitconfig
-/.cache
-/.config
-/.npm
-/.local
-/.wget-hsts
-/.yarnrc
-
-# Claude Code workspace files
-.claude/
-.codex/
-.claude.json
-.claude.lock
-CLAUDE.md
-
-# Build artifacts and dependencies - NEVER COMMIT (added by Appifex)
-.git/
+# dependencies
 node_modules/
-.build/
-Pods/
-.gradle/
-mobile/package-lock.json
-web/dist/
-web/dist-ssr/
-web/build/
-web/.next/
-web/.turbo/
-web/.cache/
-web/.parcel-cache/
-mobile/dist/
-mobile/web-build/
-mobile/.expo/
-mobile/.expo-shared/
-mobile/.kotlin/
-mobile/.metro-health-check*
-mobile/app-example/
-mobile/google-play-service-account.json
-mobile/ios/
-mobile/android/
-backend/dist/
-.vercel/
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-venv/
-.venv/
-*.egg-info/
-.eggs/
+/.pnp
+.pnp.js
 
-# Logs and temporary files
-*.log
-*.tsbuildinfo
-npm-debug.*
-yarn-debug.*
-yarn-error.*
+# leftover legacy project folders (safe to delete manually)
+/web/
+/backend/
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
 .DS_Store
-*~
-
-# IDE and editor files
-.idea/
-.vscode/
-*.swp
-*.swo
-
-# Credential and key files — NEVER COMMIT
 *.pem
-*.key
-*.p8
-*.p12
-*.jks
-*.mobileprovision
 
-# Environment files (should use secrets management)
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files
 .env
-.env.local
-.env.*.local
-.env.development
-.env.test
-.env.production
-.env.preview
-.env.staging
+.env*.local
 
-# Xcode / Apple build artifacts
-DerivedData/
-xcuserdata/
-*.dSYM
-*.dSYM.zip
-*.ipa
-*.hmap
+# vercel
+.vercel
 
-# Expo generated
-expo-env.d.ts
+# typescript
+*.tsbuildinfo
+next-env.d.ts
 
-# Test and coverage
-coverage/
-.nyc_output/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.hypothesis/
-htmlcov/
-.coverage
-.coverage.*
-.tox/
-.nox/
-pip-wheel-metadata/
-.ipynb_checkpoints/
+# local data store fallback (dev only, do not ship real data in git)
+/data/*.local.json
