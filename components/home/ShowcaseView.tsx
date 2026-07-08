@@ -3,6 +3,7 @@ import type { BusinessFormValues } from "@/components/home/BusinessForm";
 import { Hero } from "@/components/showcase/Hero";
 import { ServicesGrid } from "@/components/showcase/ServicesGrid";
 import { ContactSection } from "@/components/showcase/ContactSection";
+import { ToolsPromo } from "@/components/showcase/ToolsPromo";
 import { WhatsAppButton } from "@/components/showcase/WhatsAppButton";
 import { ArrowLeftIcon, PencilIcon } from "@/components/ui/icons";
 
@@ -69,6 +70,7 @@ export function ShowcaseView({ business, onEdit, onBack }: ShowcaseViewProps) {
       <Hero business={previewBusiness} />
       <ServicesGrid services={previewBusiness.services} businessName={previewBusiness.name} />
       <ContactSection business={previewBusiness} />
+      <ToolsPromo />
       <WhatsAppButton whatsapp={previewBusiness.whatsapp} businessName={previewBusiness.name} />
     </main>
   );

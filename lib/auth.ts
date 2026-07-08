@@ -7,6 +7,7 @@ export {
   createSessionToken,
   verifySessionToken,
   verifyPassword,
+  isAdminPasswordConfigured,
 } from "./session";
 
 /** Route Handler / Server Component context only (uses next/headers). */

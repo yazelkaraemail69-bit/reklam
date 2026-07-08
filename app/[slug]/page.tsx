@@ -4,6 +4,7 @@ import { Hero } from "@/components/showcase/Hero";
 import { Gallery } from "@/components/showcase/Gallery";
 import { ServicesGrid } from "@/components/showcase/ServicesGrid";
 import { ContactSection } from "@/components/showcase/ContactSection";
+import { ToolsPromo } from "@/components/showcase/ToolsPromo";
 import { WhatsAppButton } from "@/components/showcase/WhatsAppButton";
 import { ScriptInjector } from "@/components/common/ScriptInjector";
 import { getBusinessBySlug } from "@/lib/store";
@@ -51,6 +52,7 @@ export default async function BusinessPage({ params }: BusinessPageProps) {
       <Gallery images={business.galleryImages} businessName={business.name} />
       <ServicesGrid services={business.services} businessName={business.name} />
       <ContactSection business={business} />
+      <ToolsPromo />
       <WhatsAppButton whatsapp={business.whatsapp} businessName={business.name} />
     </main>
   );

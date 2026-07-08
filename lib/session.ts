@@ -11,8 +11,43 @@ import type { SessionPayload } from "./types";
 export const SESSION_COOKIE_NAME = "rv_session";
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7; // 7 gun
 
+/**
+ * `SESSION_SECRET` ayarlanmamışsa, kaynak kodunda sabit/görünür bir varsayılan
+ * KULLANMIYORUZ (eskiden öyleydi - bu, repoyu görebilen herkesin geçerli
+ * oturum token'ı üretebilmesi anlamına gelen kritik bir açıktı). Bunun yerine
+ * süreç başına bir kere, rastgele ve tahmin edilemez bir anahtar üretiyoruz.
+ * Bunun bedeli: ortam değişkeni tanımlı değilse, sunucu her yeniden
+ * başlatıldığında (redeploy, fonksiyon soğuk başlangıcı vb.) önceki tüm
+ * oturumlar geçersiz olur - bu, güvensiz bir varsayılanın sessizce çalışmaya
+ * devam etmesinden çok daha güvenli bir davranıştır.
+ */
+let processSecretFallback: string | null = null;
+function getProcessSecretFallback(): string {
+  if (!processSecretFallback) {
+    processSecretFallback = crypto.randomBytes(32).toString("hex");
+    console.warn(
+      "[guvenlik] SESSION_SECRET ortam degiskeni tanimli degil. Gecici, rastgele bir anahtar " +
+        "kullaniliyor; sunucu yeniden baslatildiginda tum oturumlar sonlanir. Kalici ve guvenli " +
+        "oturumlar icin .env.local / Vercel Environment Variables kismina SESSION_SECRET ekleyin."
+    );
+  }
+  return processSecretFallback;
+}
+
+/**
+ * İmzalama anahtarını `SESSION_SECRET` ile mevcut `ADMIN_PASSWORD`'ün
+ * özetini birleştirerek türetiyoruz. Böylece admin şifresini
+ * değiştirdiğinizde (örn. başka birinin şifreyi öğrendiğinden şüphelenirseniz)
+ * daha önce verilmiş TÜM oturum çerezleri anında geçersiz olur - kimseyi
+ * tek tek "çıkışa zorlamanıza" gerek kalmaz.
+ */
 function getSecret(): string {
-  return process.env.SESSION_SECRET || "gelistirme-ortami-varsayilan-anahtari-lutfen-degistirin";
+  const base = process.env.SESSION_SECRET || getProcessSecretFallback();
+  const passwordFingerprint = crypto
+    .createHash("sha256")
+    .update(process.env.ADMIN_PASSWORD || "")
+    .digest("hex");
+  return `${base}:${passwordFingerprint}`;
 }
 
 function sign(data: string): string {
@@ -52,9 +87,33 @@ export function verifySessionToken(token: string | undefined | null): boolean {
   }
 }
 
+let warnedMissingPassword = false;
+
+/**
+ * `ADMIN_PASSWORD` tanımlı değilse eskiden "admin123" gibi herkesçe bilinen
+ * bir varsayılana düşülüyordu - bu, ortam değişkeni unutulursa admin
+ * panelinin herkese açık kalması anlamına gelen kritik bir açıktı. Artık
+ * ortam değişkeni ayarlanmadan HİÇBİR şifre kabul edilmiyor (fail closed):
+ * panel, siz gerçek bir şifre tanımlayana kadar kilitli kalır.
+ */
 export function verifyPassword(password: string): boolean {
-  const expected = process.env.ADMIN_PASSWORD || "admin123";
+  const expected = process.env.ADMIN_PASSWORD;
+  if (!expected) {
+    if (!warnedMissingPassword) {
+      warnedMissingPassword = true;
+      console.warn(
+        "[guvenlik] ADMIN_PASSWORD ortam degiskeni tanimli degil. Guvenlik nedeniyle admin " +
+          "paneline hicbir sifreyle giris yapilamaz. .env.local / Vercel Environment Variables " +
+          "kismina guclu bir ADMIN_PASSWORD ekleyin."
+      );
+    }
+    return false;
+  }
   return timingSafeEqual(password, expected);
+}
+
+export function isAdminPasswordConfigured(): boolean {
+  return Boolean(process.env.ADMIN_PASSWORD);
 }
 
 export const SESSION_COOKIE = {

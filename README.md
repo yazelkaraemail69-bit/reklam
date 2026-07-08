@@ -52,6 +52,26 @@ Tarayıcıda `http://localhost:3000` adresini açın. Admin paneline
 - `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` — Kalıcı veri deposu (opsiyonel ama üretim için önerilir)
 - `BLOB_READ_WRITE_TOKEN` — Yüklenen görseller için kalıcı depolama (opsiyonel ama üretim için önerilir)
 - `NEXT_PUBLIC_SITE_URL` — Canlı domain adresiniz (SEO/OG etiketleri için)
+- `NEXT_PUBLIC_TOOLS_SITE_URL` — Kardeş ürün tanıtımı için hedef adres (bkz. aşağıdaki bölüm, opsiyonel)
+
+## Kardeş Ürün Tanıtımı (Dijital Kartvizit / Menü / Shorts)
+
+`dijital-kartvizit-menu/` klasöründe, bu siteden tamamen bağımsız (kendi
+`package.json`, kendi Next.js sunucusu, kendi teması) ayrı bir proje daha
+bulunuyor: ücretsiz dijital kartvizit, dijital menü ve yapay zekâ destekli
+Shorts video/senaryo oluşturucu. İki proje **birbirinin kodunu, temasını ya
+da özelliklerini paylaşmaz** — tek entegrasyon noktası, reklamını verdiğimiz
+işletmelere bu aracı önermek için eklenen küçük bir çapraz tanıtım kartıdır:
+
+- `components/showcase/ToolsPromo.tsx` — hem gerçek işletme vitrin
+  sayfalarının (`/isletme-adi`) altına, hem de anasayfadaki ücretsiz vitrin
+  demosuna (liste + önizleme ekranı) eklenen, marka renkleriyle uyumlu bir
+  kart. `NEXT_PUBLIC_TOOLS_SITE_URL` adresine yönlendirir.
+- Bu araç setini kendi alan adında/subdomain'de (örn.
+  `araclar.reklamx.company`) ayrıca deploy edip `NEXT_PUBLIC_TOOLS_SITE_URL`
+  değişkenini o adrese ayarlamanız yeterli; başka hiçbir kod değişikliği
+  gerekmez. Değişken boş bırakılırsa yerel geliştirme için
+  `http://localhost:3001` varsayılan olarak kullanılır.
 
 ## Vercel'e Deploy
 

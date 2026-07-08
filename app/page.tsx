@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { BusinessForm, type BusinessFormValues } from "@/components/home/BusinessForm";
 import { ShowcaseView } from "@/components/home/ShowcaseView";
+import { ToolsPromo } from "@/components/showcase/ToolsPromo";
 import { Badge } from "@/components/ui/Badge";
 import { EyeIcon, MapPinIcon, PencilIcon, PlusIcon, StoreIcon, TrashIcon } from "@/components/ui/icons";
 
@@ -302,6 +303,10 @@ export default function HomePage() {
               {MAX_BUSINESS_COUNT} slot doldu. Yeni işletme eklemek için önce birini silin.
             </div>
           ) : null}
+
+          <div className="mt-8">
+            <ToolsPromo variant="compact" />
+          </div>
         </div>
       </section>
     </main>
