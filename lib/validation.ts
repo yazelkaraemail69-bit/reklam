@@ -1,6 +1,7 @@
 import type {
   AdAspectRatio,
   AdCta,
+  AdPlatform,
   AdVariationInput,
   AdVariationStatus,
   BusinessInput,
@@ -16,6 +17,8 @@ const CAMPAIGN_OBJECTIVES: CampaignObjective[] = [
   "leads",
   "awareness",
 ];
+
+const AD_PLATFORMS: AdPlatform[] = ["meta", "google"];
 
 const AD_ASPECT_RATIOS: AdAspectRatio[] = ["1:1", "9:16", "16:9"];
 
@@ -220,6 +223,12 @@ export function normalizeCampaignInput(body: RawInput): CampaignInput {
     ? (body.status as CampaignInput["status"])
     : "draft";
 
+  const rawPlatforms = Array.isArray(body.platforms) ? body.platforms : [];
+  const platforms = rawPlatforms.filter(
+    (item): item is AdPlatform =>
+      typeof item === "string" && AD_PLATFORMS.includes(item as AdPlatform)
+  );
+
   return {
     businessId: asString(body.businessId) || undefined,
     name: asString(body.name),
@@ -240,5 +249,6 @@ export function normalizeCampaignInput(body: RawInput): CampaignInput {
     status,
     customerEmail: asString(body.customerEmail) || undefined,
     packageId: asString(body.packageId) || undefined,
+    platforms: platforms.length > 0 ? platforms : ["meta"],
   };
 }

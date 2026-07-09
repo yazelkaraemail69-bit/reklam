@@ -6,6 +6,8 @@
     "targetAudience": "25-45 yaş kadınlar, güzellik ve cilt bakımı arayan, İstanbul Anadolu yakası",
     "dailyBudget": 150,
     "totalBudget": 3000,
+    "packageId": "growth",
+    "platforms": ["meta"],
     "location": {
       "city": "İstanbul",
       "district": "Kadıköy",

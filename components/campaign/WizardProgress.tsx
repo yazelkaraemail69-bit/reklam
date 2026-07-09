@@ -25,7 +25,10 @@ export function WizardProgress({ currentIndex }: WizardProgressProps) {
         </div>
       </div>
 
-      <ol className="hidden gap-2 sm:grid sm:grid-cols-7">
+      <ol
+        className="hidden gap-2 sm:grid"
+        style={{ gridTemplateColumns: `repeat(${total}, minmax(0, 1fr))` }}
+      >
         {CAMPAIGN_WIZARD_STEPS.map((step, index) => {
           const done = index < currentIndex;
           const active = index === currentIndex;

@@ -1,17 +1,19 @@
 "use client";
 
-import { useState } from "react";
-import type { AdCta, AdVariationInput } from "@/lib/types";
+import { useEffect, useState } from "react";
+import type { AdCta, AdPlatform, AdVariationInput } from "@/lib/types";
 import { AD_CTAS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
-type PreviewMode = "feed" | "story";
+type PreviewMode = "feed" | "story" | "display";
 
 interface AdLivePreviewProps {
   businessName: string;
   imageUrl?: string;
   croppedFeed?: string;
   croppedStory?: string;
+  croppedLandscape?: string;
+  platforms?: AdPlatform[];
   variation?: Pick<AdVariationInput, "headline" | "primaryText" | "cta"> | null;
   rawOfferText?: string;
 }
@@ -26,44 +28,70 @@ export function AdLivePreview({
   imageUrl,
   croppedFeed,
   croppedStory,
+  croppedLandscape,
+  platforms = ["meta"],
   variation,
   rawOfferText,
 }: AdLivePreviewProps) {
-  const [mode, setMode] = useState<PreviewMode>("feed");
+  const hasMeta = platforms.includes("meta");
+  const hasGoogle = platforms.includes("google");
+  const [mode, setMode] = useState<PreviewMode>(hasMeta ? "feed" : "display");
+
+  useEffect(() => {
+    if (mode === "display" && !hasGoogle) setMode("feed");
+    if ((mode === "feed" || mode === "story") && !hasMeta && hasGoogle) setMode("display");
+  }, [hasMeta, hasGoogle, mode]);
+
   const headline = variation?.headline || businessName || "İşletme Adınız";
   const body =
     variation?.primaryText ||
     rawOfferText ||
-    "Teklif metniniz ve görseliniz burada Instagram reklamı gibi görünecek.";
+    "Teklif metniniz ve görseliniz burada reklam gibi görünecek.";
   const feedSrc = croppedFeed || imageUrl;
   const storySrc = croppedStory || imageUrl;
-  const src = mode === "feed" ? feedSrc : storySrc;
+  const displaySrc = croppedLandscape || imageUrl;
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex flex-col gap-2">
         <p className="text-sm font-bold text-emerald-950">Canlı önizleme</p>
-        <div className="flex rounded-lg border border-slate-200 bg-white p-0.5 text-xs font-semibold">
-          <button
-            type="button"
-            onClick={() => setMode("feed")}
-            className={cn(
-              "rounded-md px-2.5 py-1 transition-colors",
-              mode === "feed" ? "bg-brand text-white" : "text-slate-600 hover:bg-slate-50"
-            )}
-          >
-            Akış
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode("story")}
-            className={cn(
-              "rounded-md px-2.5 py-1 transition-colors",
-              mode === "story" ? "bg-brand text-white" : "text-slate-600 hover:bg-slate-50"
-            )}
-          >
-            Hikâye
-          </button>
+        <div className="flex flex-wrap rounded-lg border border-slate-200 bg-white p-0.5 text-xs font-semibold">
+          {hasMeta ? (
+            <>
+              <button
+                type="button"
+                onClick={() => setMode("feed")}
+                className={cn(
+                  "rounded-md px-2.5 py-1 transition-colors",
+                  mode === "feed" ? "bg-brand text-white" : "text-slate-600 hover:bg-slate-50"
+                )}
+              >
+                IG Akış
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode("story")}
+                className={cn(
+                  "rounded-md px-2.5 py-1 transition-colors",
+                  mode === "story" ? "bg-brand text-white" : "text-slate-600 hover:bg-slate-50"
+                )}
+              >
+                Hikâye
+              </button>
+            </>
+          ) : null}
+          {hasGoogle ? (
+            <button
+              type="button"
+              onClick={() => setMode("display")}
+              className={cn(
+                "rounded-md px-2.5 py-1 transition-colors",
+                mode === "display" ? "bg-brand text-white" : "text-slate-600 hover:bg-slate-50"
+              )}
+            >
+              Google
+            </button>
+          ) : null}
         </div>
       </div>
 
@@ -77,14 +105,13 @@ export function AdLivePreview({
               <p className="truncate text-xs font-bold text-slate-900">
                 {businessName || "isletmeniz"}
               </p>
-              <p className="text-[10px] text-slate-400">Sponsorlu</p>
+              <p className="text-[10px] text-slate-400">Sponsorlu · Meta Ads</p>
             </div>
-            <span className="text-slate-400">···</span>
           </div>
           <div className="relative aspect-square bg-slate-100">
-            {src ? (
+            {feedSrc ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={src} alt="Reklam önizleme" className="h-full w-full object-cover" />
+              <img src={feedSrc} alt="Reklam önizleme" className="h-full w-full object-cover" />
             ) : (
               <div className="flex h-full items-center justify-center px-6 text-center text-xs text-slate-400">
                 Görsel yükleyince burada görünecek
@@ -104,12 +131,14 @@ export function AdLivePreview({
             </div>
           </div>
         </div>
-      ) : (
+      ) : null}
+
+      {mode === "story" ? (
         <div className="mx-auto w-full max-w-[220px] overflow-hidden rounded-[1.5rem] border-4 border-slate-900 bg-slate-900 shadow-lg">
           <div className="relative aspect-[9/16] bg-slate-800">
-            {src ? (
+            {storySrc ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={src} alt="Hikâye önizleme" className="h-full w-full object-cover" />
+              <img src={storySrc} alt="Hikâye önizleme" className="h-full w-full object-cover" />
             ) : (
               <div className="flex h-full items-center justify-center px-4 text-center text-[11px] text-white/50">
                 Hikâye görseli burada
@@ -132,10 +161,35 @@ export function AdLivePreview({
             </div>
           </div>
         </div>
-      )}
+      ) : null}
+
+      {mode === "display" ? (
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="relative aspect-video bg-slate-100">
+            {displaySrc ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={displaySrc} alt="Google Display önizleme" className="h-full w-full object-cover" />
+            ) : (
+              <div className="flex h-full items-center justify-center px-6 text-center text-xs text-slate-400">
+                16:9 Google Display görseli
+              </div>
+            )}
+          </div>
+          <div className="space-y-2 px-3 py-3">
+            <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+              Google Ads · Display
+            </p>
+            <p className="text-sm font-bold leading-snug text-slate-900">{headline}</p>
+            <p className="line-clamp-2 text-xs leading-5 text-slate-600">{body}</p>
+            <span className="inline-block rounded-md bg-brand/10 px-2.5 py-1 text-[11px] font-bold text-brand-dark">
+              {ctaLabel(variation?.cta)}
+            </span>
+          </div>
+        </div>
+      ) : null}
 
       <p className="text-center text-[11px] text-slate-500">
-        Önizleme yaklaşıktır; gerçek yayın Meta hesabınızda açılır.
+        Önizleme yaklaşıktır. Gerçek yayın seçtiğiniz Ads platformunda açılır.
       </p>
     </div>
   );

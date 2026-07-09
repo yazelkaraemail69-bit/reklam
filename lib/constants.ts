@@ -72,6 +72,33 @@ export const AD_CTAS = [
 ] as const;
 
 /**
+ * Yayın platformları — müşteri Ads paneline girmez.
+ * Seçim, ekibin hangi Ads hesabında (Meta / Google) kampanyayı açacağını belirler.
+ */
+export const AD_PLATFORMS = [
+  {
+    value: "meta" as const,
+    label: "Meta Ads",
+    shortLabel: "Instagram & Facebook",
+    description:
+      "Instagram akış, Reels, Hikâye ve Facebook. Yerel esnaf ve WhatsApp mesajı için en güçlü kanal.",
+    channels: ["Instagram Akış", "Reels / Hikâye", "Facebook Akış"],
+    bestFor: "Mesaj, randevu, yerel görünürlük",
+    aspectHints: ["1:1", "9:16"] as const,
+  },
+  {
+    value: "google" as const,
+    label: "Google Ads",
+    shortLabel: "Google Display & YouTube",
+    description:
+      "Google Display ağı ve YouTube. Arama / keşif sırasında markanızı gösteren yatay reklamlar.",
+    channels: ["Google Display", "YouTube"],
+    bestFor: "Bilinirlik, site / vitrin trafiği",
+    aspectHints: ["16:9"] as const,
+  },
+] as const;
+
+/**
  * Sabit reklam paketleri — esnaf kuruşu kuruşuna bilir.
  * price = Iyzico'ya giden tahsilat (medya + hazırlık hizmeti dahil paket fiyatı).
  * Yayın: ödeme sonrası ekip 24 saat içinde manuel açar (API otomasyonu sonraki aşama).
@@ -138,6 +165,7 @@ export const CAMPAIGN_WIZARD_STEPS = [
   { id: "identity", title: "İşletme", hint: "Kim olduğunuzu tanımlayın" },
   { id: "location", title: "Lokasyon", hint: "Nerede hizmet veriyorsunuz?" },
   { id: "audience", title: "Hedef Kitle", hint: "Kime ulaşmak istiyorsunuz?" },
+  { id: "platforms", title: "Platform", hint: "Meta Ads mi, Google Ads mi?" },
   { id: "budget", title: "Paket", hint: "Ne kadar ödeyeceğinizi seçin" },
   { id: "offer", title: "Teklif Metni", hint: "Ne satıyorsunuz?" },
   { id: "creative", title: "Görsel", hint: "Reklam görsellerinizi hazırlayın" },

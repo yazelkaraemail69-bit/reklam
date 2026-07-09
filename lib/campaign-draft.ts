@@ -1,5 +1,6 @@
 import type {
   AdAspectRatio,
+  AdPlatform,
   AdVariationInput,
   CampaignInput,
   CampaignObjective,
@@ -23,6 +24,8 @@ export interface CampaignWizardDraft {
   district: string;
   radiusKm: number;
   targetAudience: string;
+  /** Meta Ads ve/veya Google Ads */
+  platforms: AdPlatform[];
   packageId: AdPackageId;
   dailyBudget: number;
   totalBudget: number;
@@ -43,6 +46,7 @@ export const EMPTY_WIZARD_DRAFT: CampaignWizardDraft = {
   district: "",
   radiusKm: 10,
   targetAudience: "",
+  platforms: ["meta"],
   packageId: "growth",
   dailyBudget: 180,
   totalBudget: 2990,
@@ -65,6 +69,7 @@ export function draftToCampaignInput(draft: CampaignWizardDraft): CampaignInput 
     dailyBudget: pkg.dailyBudget,
     totalBudget: pkg.price,
     packageId: pkg.id,
+    platforms: draft.platforms.length > 0 ? draft.platforms : ["meta"],
     location: {
       city: draft.city.trim(),
       district: draft.district.trim() || undefined,
@@ -96,6 +101,11 @@ export function validateWizardStep(
     case "audience":
       if (!draft.targetAudience.trim() || draft.targetAudience.trim().length < 10) {
         return "Hedef kitlenizi en az birkaç kelimeyle tanımlayın (yaş, cinsiyet, ihtiyaç).";
+      }
+      return null;
+    case "platforms":
+      if (!draft.platforms.length) {
+        return "En az bir platform seçin: Meta Ads veya Google Ads.";
       }
       return null;
     case "budget":

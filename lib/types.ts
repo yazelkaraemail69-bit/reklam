@@ -57,6 +57,9 @@ export interface SessionPayload {
 /** Reklam kampanyasının birincil dönüşüm hedefi */
 export type CampaignObjective = "traffic" | "messages" | "leads" | "awareness";
 
+/** Yayın kanalı — müşteri Ads paneline girmez; ekip seçilen platformda açar */
+export type AdPlatform = "meta" | "google";
+
 /** Platforma göre görsel oranı (Instagram, Reels, Google Ads) */
 export type AdAspectRatio = "1:1" | "9:16" | "16:9";
 
@@ -129,6 +132,8 @@ export interface Campaign {
   customerEmail?: string;
   /** Seçilen sabit paket (starter | growth | pro) */
   packageId?: string;
+  /** Müşterinin seçtiği yayın platformları (meta = IG/FB, google = Display/YouTube) */
+  platforms?: AdPlatform[];
   createdAt: string;
   updatedAt: string;
 }

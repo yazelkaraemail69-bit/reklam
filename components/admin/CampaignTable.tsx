@@ -1,5 +1,5 @@
 import type { Campaign } from "@/lib/types";
-import { CAMPAIGN_OBJECTIVES } from "@/lib/constants";
+import { AD_PLATFORMS, CAMPAIGN_OBJECTIVES } from "@/lib/constants";
 import { Badge } from "@/components/ui/Badge";
 import { LinkButton } from "@/components/ui/LinkButton";
 
@@ -11,6 +11,13 @@ const STATUS_LABEL: Record<Campaign["status"], string> = {
   paused: "Duraklatıldı",
   completed: "Tamamlandı",
 };
+
+function platformLabels(campaign: Campaign): string {
+  const platforms = campaign.platforms?.length ? campaign.platforms : ["meta"];
+  return platforms
+    .map((id) => AD_PLATFORMS.find((p) => p.value === id)?.label ?? id)
+    .join(" · ");
+}
 
 interface CampaignTableProps {
   campaigns: Campaign[];
@@ -37,6 +44,7 @@ export function CampaignTable({ campaigns }: CampaignTableProps) {
         <thead className="border-b border-slate-100 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
           <tr>
             <th className="px-4 py-3 font-bold">Kampanya</th>
+            <th className="px-4 py-3 font-bold">Platform</th>
             <th className="px-4 py-3 font-bold">Hedef</th>
             <th className="px-4 py-3 font-bold">Lokasyon</th>
             <th className="px-4 py-3 font-bold">Bütçe / gün</th>
@@ -55,6 +63,7 @@ export function CampaignTable({ campaigns }: CampaignTableProps) {
                     {campaign.targetAudience}
                   </p>
                 </td>
+                <td className="px-4 py-3 text-slate-700">{platformLabels(campaign)}</td>
                 <td className="px-4 py-3 text-slate-700">{objective?.label ?? campaign.objective}</td>
                 <td className="px-4 py-3 text-slate-700">
                   {campaign.location.district

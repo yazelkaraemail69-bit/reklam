@@ -18,6 +18,7 @@ import { IyzicoTrustBadge } from "@/components/campaign/IyzicoTrustBadge";
 import { IdentityStep } from "@/components/campaign/steps/IdentityStep";
 import { LocationStep } from "@/components/campaign/steps/LocationStep";
 import { AudienceStep } from "@/components/campaign/steps/AudienceStep";
+import { PlatformsStep } from "@/components/campaign/steps/PlatformsStep";
 import { BudgetStep } from "@/components/campaign/steps/BudgetStep";
 import { OfferStep } from "@/components/campaign/steps/OfferStep";
 import { CreativeStep } from "@/components/campaign/steps/CreativeStep";
@@ -200,6 +201,7 @@ export function CampaignWizard() {
             {step.id === "identity" ? <IdentityStep draft={draft} onChange={patchDraft} /> : null}
             {step.id === "location" ? <LocationStep draft={draft} onChange={patchDraft} /> : null}
             {step.id === "audience" ? <AudienceStep draft={draft} onChange={patchDraft} /> : null}
+            {step.id === "platforms" ? <PlatformsStep draft={draft} onChange={patchDraft} /> : null}
             {step.id === "budget" ? <BudgetStep draft={draft} onChange={patchDraft} /> : null}
             {step.id === "offer" ? <OfferStep draft={draft} onChange={patchDraft} /> : null}
             {step.id === "creative" ? <CreativeStep draft={draft} onChange={patchDraft} /> : null}
@@ -243,6 +245,8 @@ export function CampaignWizard() {
               imageUrl={draft.sourceImageUrl}
               croppedFeed={draft.croppedImages["1:1"]}
               croppedStory={draft.croppedImages["9:16"]}
+              croppedLandscape={draft.croppedImages["16:9"]}
+              platforms={draft.platforms}
               variation={previewVariation}
               rawOfferText={draft.rawOfferText}
             />
