@@ -20,14 +20,22 @@ export function Navbar({ siteName }: { siteName: string }) {
           <a href="#ozellikler" className="transition-colors hover:text-brand-dark">
             Özellikler
           </a>
-          <a href="#vitrinler" className="transition-colors hover:text-brand-dark">
-            Örnek Vitrinler
+          <a href="#ornekler" className="transition-colors hover:text-brand-dark">
+            Örnekler
           </a>
+          <Link href="/vitrin" className="transition-colors hover:text-brand-dark">
+            Vitrin Demosu
+          </Link>
         </div>
 
-        <LinkButton href="/admin" size="sm">
-          Yönetim Paneli
-        </LinkButton>
+        <div className="flex items-center gap-2">
+          <LinkButton href="/kampanya" size="sm">
+            Kampanya Oluştur
+          </LinkButton>
+          <LinkButton href="/admin" size="sm" variant="outline" className="hidden sm:inline-flex">
+            Panel
+          </LinkButton>
+        </div>
       </nav>
     </header>
   );

@@ -11,12 +11,20 @@ export function Footer({ siteName }: { siteName: string }) {
           </span>
           <span className="font-bold">{siteName}</span>
         </Link>
+        <div className="flex flex-wrap items-center justify-center gap-4 text-sm font-semibold text-slate-500">
+          <Link href="/kampanya" className="hover:text-brand-dark">
+            Kampanya Oluştur
+          </Link>
+          <Link href="/vitrin" className="hover:text-brand-dark">
+            Vitrin Demosu
+          </Link>
+          <Link href="/admin" className="hover:text-brand-dark">
+            Yönetim Paneli
+          </Link>
+        </div>
         <p className="text-sm text-slate-500">
-          © {new Date().getFullYear()} {siteName}. Tüm hakları saklıdır.
+          © {new Date().getFullYear()} {siteName}
         </p>
-        <Link href="/admin" className="text-sm font-semibold text-brand-dark hover:underline">
-          Yönetim Paneli
-        </Link>
       </div>
     </footer>
   );

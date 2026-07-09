@@ -1,0 +1,58 @@
+[
+  {
+    "id": "camp-demo-001",
+    "name": "Bahar Kampanyası — Güzellik Salonu",
+    "objective": "messages",
+    "targetAudience": "25-45 yaş kadınlar, güzellik ve cilt bakımı arayan, İstanbul Anadolu yakası",
+    "dailyBudget": 150,
+    "totalBudget": 3000,
+    "location": {
+      "city": "İstanbul",
+      "district": "Kadıköy",
+      "radiusKm": 8
+    },
+    "rawOfferText": "Kadıköy'de profesyonel cilt bakımı ve kaş tasarımı. İlk seansa %20 indirim.",
+    "sourceImageUrl": "",
+    "variations": [
+      {
+        "id": "var-demo-a",
+        "label": "A",
+        "headline": "Kadıköy'de Cildiniz Yenilensin",
+        "primaryText": "İlk seansa özel %20 indirim. WhatsApp'tan randevu alın, aynı gün müsaitlik öğrenin.",
+        "cta": "whatsapp",
+        "aspectRatio": "1:1",
+        "status": "active",
+        "source": "template",
+        "createdAt": "2026-07-01T10:00:00.000Z",
+        "updatedAt": "2026-07-01T10:00:00.000Z"
+      },
+      {
+        "id": "var-demo-b",
+        "label": "B",
+        "headline": "İlk Bakımda %20 İndirim",
+        "primaryText": "Kaş tasarımı + cilt bakımı paketleri. Kadıköy merkez, kolay ulaşım. Hemen yazın.",
+        "cta": "get_offer",
+        "aspectRatio": "9:16",
+        "status": "active",
+        "source": "template",
+        "createdAt": "2026-07-01T10:00:00.000Z",
+        "updatedAt": "2026-07-01T10:00:00.000Z"
+      },
+      {
+        "id": "var-demo-c",
+        "label": "C",
+        "headline": "Komşularınızın Tercih Ettiği Salon",
+        "primaryText": "Doğal sonuç, hijyenik ortam. Randevunuzu 1 dakikada alın.",
+        "cta": "book_now",
+        "aspectRatio": "16:9",
+        "status": "draft",
+        "source": "manual",
+        "createdAt": "2026-07-01T10:00:00.000Z",
+        "updatedAt": "2026-07-01T10:00:00.000Z"
+      }
+    ],
+    "status": "ready",
+    "createdAt": "2026-07-01T10:00:00.000Z",
+    "updatedAt": "2026-07-01T10:00:00.000Z"
+  }
+]

@@ -7,17 +7,18 @@ export function CtaSection() {
       <div className="container-app">
         <div className="flex flex-col items-center gap-6 rounded-3xl bg-brand px-6 py-14 text-center text-white sm:px-16">
           <h2 className="max-w-xl text-3xl font-black leading-tight sm:text-4xl">
-            İşletmenizin dijital vitrinini bugün oluşturun
+            İlk kampanyanızı bugün oluşturun
           </h2>
           <p className="max-w-lg leading-7 text-white/90">
-            Kurulum ücretsiz, yönetimi çok kolay. Sadece birkaç dakikanızı ayırın.
+            7 adımlık sihirbazla hedef kitle, bütçe, görsel ve A/B metinleriniz hazır. Kayıt
+            gerekmez — hemen başlayın.
           </p>
           <LinkButton
-            href="/admin"
+            href="/kampanya"
             size="lg"
             className="bg-white text-brand-dark hover:bg-brand-50"
           >
-            Ücretsiz Başla <ArrowRightIcon className="h-5 w-5" />
+            Kampanya Oluştur <ArrowRightIcon className="h-5 w-5" />
           </LinkButton>
         </div>
       </div>

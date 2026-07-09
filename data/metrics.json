@@ -1,0 +1,90 @@
+[
+  {
+    "id": "met-001",
+    "campaignId": "camp-demo-001",
+    "variationId": "var-demo-a",
+    "date": "2026-07-05",
+    "impressions": 4200,
+    "clicks": 186,
+    "spend": 142.5,
+    "messages": 28,
+    "leads": 6
+  },
+  {
+    "id": "met-002",
+    "campaignId": "camp-demo-001",
+    "variationId": "var-demo-b",
+    "date": "2026-07-05",
+    "impressions": 3850,
+    "clicks": 210,
+    "spend": 138.0,
+    "messages": 34,
+    "leads": 9
+  },
+  {
+    "id": "met-003",
+    "campaignId": "camp-demo-001",
+    "variationId": "var-demo-a",
+    "date": "2026-07-06",
+    "impressions": 5100,
+    "clicks": 224,
+    "spend": 155.2,
+    "messages": 31,
+    "leads": 7
+  },
+  {
+    "id": "met-004",
+    "campaignId": "camp-demo-001",
+    "variationId": "var-demo-b",
+    "date": "2026-07-06",
+    "impressions": 4600,
+    "clicks": 268,
+    "spend": 149.8,
+    "messages": 41,
+    "leads": 11
+  },
+  {
+    "id": "met-005",
+    "campaignId": "camp-demo-001",
+    "variationId": "var-demo-a",
+    "date": "2026-07-07",
+    "impressions": 3900,
+    "clicks": 172,
+    "spend": 131.4,
+    "messages": 22,
+    "leads": 5
+  },
+  {
+    "id": "met-006",
+    "campaignId": "camp-demo-001",
+    "variationId": "var-demo-b",
+    "date": "2026-07-07",
+    "impressions": 4400,
+    "clicks": 255,
+    "spend": 152.1,
+    "messages": 38,
+    "leads": 10
+  },
+  {
+    "id": "met-007",
+    "campaignId": "camp-demo-001",
+    "variationId": "var-demo-c",
+    "date": "2026-07-08",
+    "impressions": 2100,
+    "clicks": 78,
+    "spend": 64.0,
+    "messages": 9,
+    "leads": 2
+  },
+  {
+    "id": "met-008",
+    "campaignId": "camp-demo-001",
+    "variationId": "var-demo-b",
+    "date": "2026-07-08",
+    "impressions": 5200,
+    "clicks": 312,
+    "spend": 168.5,
+    "messages": 47,
+    "leads": 14
+  }
+]

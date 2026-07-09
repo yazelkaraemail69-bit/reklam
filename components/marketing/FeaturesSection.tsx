@@ -1,42 +1,43 @@
 import {
-  CodeIcon,
+  ImageIcon,
   LayoutDashboardIcon,
-  PhoneIcon,
-  ShieldCheckIcon,
   SparklesIcon,
+  ShieldCheckIcon,
   StoreIcon,
+  PhoneIcon,
 } from "@/components/ui/icons";
 
 const FEATURES = [
   {
+    Icon: SparklesIcon,
+    title: "AI hazır metin altyapısı",
+    description:
+      "Ham teklifinizi satış sloganlarına dönüştüren modüler katman. DeepSeek / OpenAI bağlanmaya hazır.",
+  },
+  {
     Icon: StoreIcon,
-    title: "Özel İşletme Sayfası",
-    description: "Her işletme kendi benzersiz adresine (/isletme-adiniz) sahip olur.",
+    title: "A/B test varyasyonları",
+    description: "Aynı girdiden birden fazla reklam metni; hangisinin daha çok dönüştürdüğünü görün.",
+  },
+  {
+    Icon: ImageIcon,
+    title: "Platform görsel kırpma",
+    description: "Instagram 1:1, Reels 9:16 ve Google Ads 16:9 — tek fotoğraftan üç format.",
   },
   {
     Icon: LayoutDashboardIcon,
-    title: "Kolay Yönetim Paneli",
-    description: "İçeriklerinizi, görsellerinizi ve hizmetlerinizi tek panelden yönetin.",
+    title: "Analitik paneli",
+    description: "Gösterim, tıklama, harcama, CTR ve varyasyon karşılaştırması tek bakışta.",
   },
   {
     Icon: PhoneIcon,
-    title: "WhatsApp Entegrasyonu",
-    description: "Sayfanıza sabitlenmiş WhatsApp butonuyla ziyaretçiler size anında ulaşır.",
-  },
-  {
-    Icon: CodeIcon,
-    title: "Script Injection",
-    description: "Google Analytics, Meta Pixel veya reklam scriptlerinizi kolayca ekleyin.",
-  },
-  {
-    Icon: SparklesIcon,
-    title: "Yüksek Performans",
-    description: "Next.js altyapısı ile hızlı yüklenen, SEO dostu ve mobil uyumlu sayfalar.",
+    title: "WhatsApp odaklı dönüşüm",
+    description: "Yerel işletmeler için mesaj ve arama CTA’ları — tıklamadan müşteriye.",
   },
   {
     Icon: ShieldCheckIcon,
-    title: "Güvenli Altyapı",
-    description: "Şifre korumalı yönetim paneli ve güvenli oturum yönetimi.",
+    title: "Adım adım onboarding",
+    description: "Reklam jargonuna boğulmadan; her adımda CRO ipuçlarıyla ilerleyen sihirbaz.",
   },
 ];
 
@@ -49,7 +50,7 @@ export function FeaturesSection() {
             Özellikler
           </span>
           <h2 className="mt-3 text-3xl font-black text-emerald-950 sm:text-4xl">
-            İhtiyacınız olan her şey tek platformda
+            Dönüşüm için gereken her şey
           </h2>
         </div>
 

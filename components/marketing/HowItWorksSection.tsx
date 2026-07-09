@@ -1,18 +1,19 @@
 const STEPS = [
   {
     number: "01",
-    title: "Panele Giriş Yapın",
-    description: "Yönetim panelinize giriş yapın ve yeni işletme kaydı oluşturmaya başlayın.",
+    title: "İşletme ve lokasyon",
+    description: "Kim olduğunuzu ve nerede hizmet verdiğinizi girin. Dar lokasyon = daha ucuz tıklama.",
   },
   {
     number: "02",
-    title: "Bilgilerinizi Girin",
-    description: "İşletme adınızı, hizmetlerinizi, iletişim bilgilerinizi ve görsellerinizi ekleyin.",
+    title: "Hedef kitle ve bütçe",
+    description: "Kime ulaşacağınızı ve günlük bütçenizi netleştirin. Reklam bilmenize gerek yok.",
   },
   {
     number: "03",
-    title: "Yayınlayın",
-    description: "Tek tıkla yayına alın; sayfanız hemen /isletme-adiniz adresinde canlı olsun.",
+    title: "Metin, görsel, A/B",
+    description:
+      "Teklifinizi yazın, görseli 1:1 / 9:16 / 16:9 kırpın; sistem satış odaklı varyasyonlar üretsin.",
   },
 ];
 
@@ -25,8 +26,11 @@ export function HowItWorksSection() {
             Nasıl Çalışır
           </span>
           <h2 className="mt-3 text-3xl font-black text-emerald-950 sm:text-4xl">
-            3 adımda vitrininiz hazır
+            Reklamcı olmadan kampanya kurun
           </h2>
+          <p className="mt-3 text-base text-slate-600">
+            Sihirbaz sizi yormadan ilerletir; her adımda strateji ipuçları vardır.
+          </p>
         </div>
 
         <div className="mt-14 grid gap-8 md:grid-cols-3">

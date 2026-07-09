@@ -1,10 +1,23 @@
 import { promises as fs } from "fs";
 import path from "path";
-import type { Business, BusinessInput, SiteSettings } from "./types";
+import type {
+  AdVariation,
+  AdVariationInput,
+  Business,
+  BusinessInput,
+  Campaign,
+  CampaignInput,
+  CampaignMetrics,
+  CampaignMetricsInput,
+  CampaignMetricsSummary,
+  SiteSettings,
+} from "./types";
 import { slugify } from "./utils";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const BUSINESSES_FILE = path.join(DATA_DIR, "businesses.json");
+const CAMPAIGNS_FILE = path.join(DATA_DIR, "campaigns.json");
+const METRICS_FILE = path.join(DATA_DIR, "metrics.json");
 const SETTINGS_FILE = path.join(DATA_DIR, "settings.json");
 
 const KV_URL = process.env.UPSTASH_REDIS_REST_URL;
@@ -69,7 +82,8 @@ async function saveBusinesses(businesses: Business[]): Promise<void> {
 
 const DEFAULT_SETTINGS: SiteSettings = {
   siteName: "Reklam Vitrini",
-  siteDescription: "İşletmeniz için saniyeler içinde profesyonel bir reklam vitrini oluşturun.",
+  siteDescription:
+    "Reklam bilmeden dönüşüm odaklı kampanya oluşturun. Hedef kitle, bütçe, görsel ve A/B metinleri adım adım.",
   globalHeadScript: "",
   updatedAt: new Date(0).toISOString(),
 };
@@ -98,6 +112,8 @@ async function saveSettings(settings: SiteSettings): Promise<void> {
 const RESERVED_SLUGS = new Set([
   "admin",
   "api",
+  "kampanya",
+  "vitrin",
   "_next",
   "favicon.ico",
   "robots.txt",
@@ -184,6 +200,159 @@ export async function deleteBusiness(id: string): Promise<boolean> {
   if (next.length === all.length) return false;
   await saveBusinesses(next);
   return true;
+}
+
+function stampVariations(inputs: AdVariationInput[] = [], now: string): AdVariation[] {
+  return inputs.map((input, index) => ({
+    ...input,
+    id: crypto.randomUUID(),
+    label: input.label || String.fromCharCode(65 + index),
+    createdAt: now,
+    updatedAt: now,
+  }));
+}
+
+async function loadCampaigns(): Promise<Campaign[]> {
+  if (hasKv) {
+    const raw = await upstash<string | null>(["GET", "campaigns"]);
+    if (!raw) return [];
+    return JSON.parse(raw) as Campaign[];
+  }
+  try {
+    return await readJsonFile<Campaign[]>(CAMPAIGNS_FILE);
+  } catch {
+    return [];
+  }
+}
+
+async function saveCampaigns(campaigns: Campaign[]): Promise<void> {
+  if (hasKv) {
+    await upstash(["SET", "campaigns", JSON.stringify(campaigns)]);
+    return;
+  }
+  await writeJsonFile(CAMPAIGNS_FILE, campaigns);
+}
+
+export async function getCampaigns(): Promise<Campaign[]> {
+  const all = await loadCampaigns();
+  return [...all].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+}
+
+export async function getCampaignById(id: string): Promise<Campaign | null> {
+  const all = await loadCampaigns();
+  return all.find((c) => c.id === id) ?? null;
+}
+
+export async function getCampaignsByBusinessId(businessId: string): Promise<Campaign[]> {
+  const all = await getCampaigns();
+  return all.filter((c) => c.businessId === businessId);
+}
+
+export async function createCampaign(input: CampaignInput): Promise<Campaign> {
+  const all = await loadCampaigns();
+  const now = new Date().toISOString();
+  const campaign: Campaign = {
+    ...input,
+    id: crypto.randomUUID(),
+    variations: stampVariations(input.variations, now),
+    createdAt: now,
+    updatedAt: now,
+  };
+  all.unshift(campaign);
+  await saveCampaigns(all);
+  return campaign;
+}
+
+export async function updateCampaign(
+  id: string,
+  patch: Partial<CampaignInput>
+): Promise<Campaign | null> {
+  const all = await loadCampaigns();
+  const index = all.findIndex((c) => c.id === id);
+  if (index === -1) return null;
+
+  const current = all[index];
+  const now = new Date().toISOString();
+  const nextVariations =
+    patch.variations !== undefined
+      ? stampVariations(patch.variations, now)
+      : current.variations;
+
+  const updated: Campaign = {
+    ...current,
+    ...patch,
+    variations: nextVariations,
+    updatedAt: now,
+  };
+  all[index] = updated;
+  await saveCampaigns(all);
+  return updated;
+}
+
+export async function deleteCampaign(id: string): Promise<boolean> {
+  const all = await loadCampaigns();
+  const next = all.filter((c) => c.id !== id);
+  if (next.length === all.length) return false;
+  await saveCampaigns(next);
+  return true;
+}
+
+async function loadMetrics(): Promise<CampaignMetrics[]> {
+  if (hasKv) {
+    const raw = await upstash<string | null>(["GET", "metrics"]);
+    if (!raw) return [];
+    return JSON.parse(raw) as CampaignMetrics[];
+  }
+  try {
+    return await readJsonFile<CampaignMetrics[]>(METRICS_FILE);
+  } catch {
+    return [];
+  }
+}
+
+async function saveMetrics(metrics: CampaignMetrics[]): Promise<void> {
+  if (hasKv) {
+    await upstash(["SET", "metrics", JSON.stringify(metrics)]);
+    return;
+  }
+  await writeJsonFile(METRICS_FILE, metrics);
+}
+
+export async function getMetrics(campaignId?: string): Promise<CampaignMetrics[]> {
+  const all = await loadMetrics();
+  const filtered = campaignId ? all.filter((m) => m.campaignId === campaignId) : all;
+  return [...filtered].sort((a, b) => (a.date < b.date ? 1 : -1));
+}
+
+export async function createMetric(input: CampaignMetricsInput): Promise<CampaignMetrics> {
+  const all = await loadMetrics();
+  const metric: CampaignMetrics = {
+    ...input,
+    id: crypto.randomUUID(),
+  };
+  all.push(metric);
+  await saveMetrics(all);
+  return metric;
+}
+
+export function summarizeMetrics(rows: CampaignMetrics[]): CampaignMetricsSummary {
+  const totals = rows.reduce(
+    (acc, row) => {
+      acc.impressions += row.impressions;
+      acc.clicks += row.clicks;
+      acc.spend += row.spend;
+      acc.messages += row.messages ?? 0;
+      acc.leads += row.leads ?? 0;
+      return acc;
+    },
+    { impressions: 0, clicks: 0, spend: 0, messages: 0, leads: 0 }
+  );
+
+  return {
+    ...totals,
+    ctr: totals.impressions > 0 ? (totals.clicks / totals.impressions) * 100 : 0,
+    cpc: totals.clicks > 0 ? totals.spend / totals.clicks : 0,
+  };
 }
 
 export async function getSettings(): Promise<SiteSettings> {

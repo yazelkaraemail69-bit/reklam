@@ -4,10 +4,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { LogoutButton } from "@/components/admin/LogoutButton";
-import { GlobeIcon, LayoutDashboardIcon, PlusIcon, SettingsIcon, StoreIcon } from "@/components/ui/icons";
+import {
+  GlobeIcon,
+  LayoutDashboardIcon,
+  PlusIcon,
+  SettingsIcon,
+  SparklesIcon,
+  StoreIcon,
+} from "@/components/ui/icons";
 
 const NAV_ITEMS = [
   { href: "/admin", label: "İşletmeler", Icon: LayoutDashboardIcon, exact: true },
+  { href: "/admin/campaigns", label: "Kampanyalar", Icon: SparklesIcon, exact: true },
+  { href: "/admin/analytics", label: "Analitik", Icon: LayoutDashboardIcon, exact: true },
   { href: "/admin/businesses/new", label: "Yeni İşletme", Icon: PlusIcon, exact: true },
   { href: "/admin/settings", label: "Site Ayarları", Icon: SettingsIcon, exact: true },
 ];
