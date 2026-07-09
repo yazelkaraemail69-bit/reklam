@@ -16,6 +16,7 @@ import {
 const NAV_ITEMS = [
   { href: "/admin", label: "İşletmeler", Icon: LayoutDashboardIcon, exact: true },
   { href: "/admin/campaigns", label: "Kampanyalar", Icon: SparklesIcon, exact: true },
+  { href: "/admin/payments", label: "Ödemeler", Icon: SparklesIcon, exact: true },
   { href: "/admin/analytics", label: "Analitik", Icon: LayoutDashboardIcon, exact: true },
   { href: "/admin/businesses/new", label: "Yeni İşletme", Icon: PlusIcon, exact: true },
   { href: "/admin/settings", label: "Site Ayarları", Icon: SettingsIcon, exact: true },

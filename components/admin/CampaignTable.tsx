@@ -5,6 +5,7 @@ import { LinkButton } from "@/components/ui/LinkButton";
 
 const STATUS_LABEL: Record<Campaign["status"], string> = {
   draft: "Taslak",
+  pending_payment: "Ödeme Bekliyor",
   ready: "Hazır",
   running: "Yayında",
   paused: "Duraklatıldı",

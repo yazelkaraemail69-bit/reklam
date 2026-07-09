@@ -17,7 +17,7 @@ export function IdentityStep({ draft, onChange }: StepProps) {
       <div>
         <h2 className="text-xl font-black text-emerald-950">İşletmenizi tanıyın</h2>
         <p className="mt-1 text-sm text-slate-600">
-          Reklam metinleri bu bilgiden üretilecek. Önce kim olduğunuzu netleştirin.
+          Reklam metinleri ve ödeme e-postası bu bilgiden üretilecek.
         </p>
       </div>
 
@@ -27,6 +27,16 @@ export function IdentityStep({ draft, onChange }: StepProps) {
         value={draft.businessName}
         onChange={(e) => onChange({ businessName: e.target.value })}
         placeholder="Örn. Yeşil Vadi Güzellik Salonu"
+      />
+
+      <Input
+        label="E-posta"
+        type="email"
+        required
+        value={draft.customerEmail}
+        onChange={(e) => onChange({ customerEmail: e.target.value })}
+        placeholder="ornek@isletme.com"
+        hint="Iyzico ödeme linki bu adrese gönderilir."
       />
 
       <Select
@@ -51,8 +61,8 @@ export function IdentityStep({ draft, onChange }: StepProps) {
       />
 
       <CroTip>
-        İşletme adınız reklam başlığında geçecek — kısa ve akılda kalır olsun. Uzun yasal unvan
-        yerine müşterinin bildiği ismi kullanın.
+        İşletme adınız reklam başlığında geçecek — kısa ve akılda kalır olsun. E-posta adresinizi
+        doğru yazın; ödeme linki yalnızca oraya gider.
       </CroTip>
     </div>
   );

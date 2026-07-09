@@ -2,6 +2,7 @@ import { Navbar } from "@/components/marketing/Navbar";
 import { HeroSection } from "@/components/marketing/HeroSection";
 import { HowItWorksSection } from "@/components/marketing/HowItWorksSection";
 import { FeaturesSection } from "@/components/marketing/FeaturesSection";
+import { PricingSection } from "@/components/marketing/PricingSection";
 import { BusinessesShowcaseSection } from "@/components/marketing/BusinessesShowcaseSection";
 import { CtaSection } from "@/components/marketing/CtaSection";
 import { Footer } from "@/components/marketing/Footer";
@@ -19,6 +20,7 @@ export default async function HomePage() {
         <HeroSection />
         <HowItWorksSection />
         <FeaturesSection />
+        <PricingSection />
         <BusinessesShowcaseSection businesses={businesses} />
         <CtaSection />
       </main>

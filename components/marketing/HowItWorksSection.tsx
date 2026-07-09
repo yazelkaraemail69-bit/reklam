@@ -6,14 +6,15 @@ const STEPS = [
   },
   {
     number: "02",
-    title: "Hedef kitle ve bütçe",
-    description: "Kime ulaşacağınızı ve günlük bütçenizi netleştirin. Reklam bilmenize gerek yok.",
+    title: "Paket seçin",
+    description:
+      "Başlangıç, Büyüme veya Pro — kuruşu kuruşuna net fiyat. Gizli ücret yok.",
   },
   {
     number: "03",
-    title: "Metin, görsel, A/B",
+    title: "Önizle, öde, yayınla",
     description:
-      "Teklifinizi yazın, görseli 1:1 / 9:16 / 16:9 kırpın; sistem satış odaklı varyasyonlar üretsin.",
+      "Instagram akış/hikâye önizlemesini görün. Iyzico ile ödeyin; 24 saat içinde yayına alınır.",
   },
 ];
 

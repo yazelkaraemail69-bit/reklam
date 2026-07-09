@@ -10,6 +10,8 @@ import type {
   CampaignMetrics,
   CampaignMetricsInput,
   CampaignMetricsSummary,
+  PaymentOrder,
+  PaymentOrderInput,
   SiteSettings,
 } from "./types";
 import { slugify } from "./utils";
@@ -18,6 +20,7 @@ const DATA_DIR = path.join(process.cwd(), "data");
 const BUSINESSES_FILE = path.join(DATA_DIR, "businesses.json");
 const CAMPAIGNS_FILE = path.join(DATA_DIR, "campaigns.json");
 const METRICS_FILE = path.join(DATA_DIR, "metrics.json");
+const PAYMENTS_FILE = path.join(DATA_DIR, "payments.json");
 const SETTINGS_FILE = path.join(DATA_DIR, "settings.json");
 
 const KV_URL = process.env.UPSTASH_REDIS_REST_URL;
@@ -353,6 +356,86 @@ export function summarizeMetrics(rows: CampaignMetrics[]): CampaignMetricsSummar
     ctr: totals.impressions > 0 ? (totals.clicks / totals.impressions) * 100 : 0,
     cpc: totals.clicks > 0 ? totals.spend / totals.clicks : 0,
   };
+}
+
+async function loadPayments(): Promise<PaymentOrder[]> {
+  if (hasKv) {
+    const raw = await upstash<string | null>(["GET", "payments"]);
+    if (!raw) return [];
+    return JSON.parse(raw) as PaymentOrder[];
+  }
+  try {
+    return await readJsonFile<PaymentOrder[]>(PAYMENTS_FILE);
+  } catch {
+    return [];
+  }
+}
+
+async function savePayments(payments: PaymentOrder[]): Promise<void> {
+  if (hasKv) {
+    await upstash(["SET", "payments", JSON.stringify(payments)]);
+    return;
+  }
+  await writeJsonFile(PAYMENTS_FILE, payments);
+}
+
+export async function getPayments(): Promise<PaymentOrder[]> {
+  const all = await loadPayments();
+  return [...all].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+}
+
+export async function getPaymentById(id: string): Promise<PaymentOrder | null> {
+  const all = await loadPayments();
+  return all.find((p) => p.id === id) ?? null;
+}
+
+export async function getPaymentByConversationId(
+  conversationId: string
+): Promise<PaymentOrder | null> {
+  const all = await loadPayments();
+  return all.find((p) => p.conversationId === conversationId) ?? null;
+}
+
+export async function getPaymentByIyzicoToken(token: string): Promise<PaymentOrder | null> {
+  const all = await loadPayments();
+  return all.find((p) => p.iyzicoToken === token) ?? null;
+}
+
+export async function getPaymentsByCampaignId(campaignId: string): Promise<PaymentOrder[]> {
+  const all = await getPayments();
+  return all.filter((p) => p.campaignId === campaignId);
+}
+
+export async function createPaymentOrder(input: PaymentOrderInput): Promise<PaymentOrder> {
+  const all = await loadPayments();
+  const now = new Date().toISOString();
+  const order: PaymentOrder = {
+    ...input,
+    id: crypto.randomUUID(),
+    createdAt: now,
+    updatedAt: now,
+  };
+  all.unshift(order);
+  await savePayments(all);
+  return order;
+}
+
+export async function updatePaymentOrder(
+  id: string,
+  patch: Partial<PaymentOrderInput>
+): Promise<PaymentOrder | null> {
+  const all = await loadPayments();
+  const index = all.findIndex((p) => p.id === id);
+  if (index === -1) return null;
+
+  const updated: PaymentOrder = {
+    ...all[index],
+    ...patch,
+    updatedAt: new Date().toISOString(),
+  };
+  all[index] = updated;
+  await savePayments(all);
+  return updated;
 }
 
 export async function getSettings(): Promise<SiteSettings> {

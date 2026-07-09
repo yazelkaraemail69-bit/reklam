@@ -4,7 +4,7 @@ import type {
   CampaignInput,
   CampaignObjective,
 } from "@/lib/types";
-import { CAMPAIGN_WIZARD_STEPS } from "@/lib/constants";
+import { CAMPAIGN_WIZARD_STEPS, getAdPackage, type AdPackageId } from "@/lib/constants";
 
 export type WizardStepId = (typeof CAMPAIGN_WIZARD_STEPS)[number]["id"];
 
@@ -15,6 +15,7 @@ export type WizardStepId = (typeof CAMPAIGN_WIZARD_STEPS)[number]["id"];
  */
 export interface CampaignWizardDraft {
   businessName: string;
+  customerEmail: string;
   category: string;
   campaignName: string;
   objective: CampaignObjective;
@@ -22,6 +23,7 @@ export interface CampaignWizardDraft {
   district: string;
   radiusKm: number;
   targetAudience: string;
+  packageId: AdPackageId;
   dailyBudget: number;
   totalBudget: number;
   rawOfferText: string;
@@ -33,6 +35,7 @@ export interface CampaignWizardDraft {
 
 export const EMPTY_WIZARD_DRAFT: CampaignWizardDraft = {
   businessName: "",
+  customerEmail: "",
   category: "",
   campaignName: "",
   objective: "messages",
@@ -40,8 +43,9 @@ export const EMPTY_WIZARD_DRAFT: CampaignWizardDraft = {
   district: "",
   radiusKm: 10,
   targetAudience: "",
-  dailyBudget: 100,
-  totalBudget: 0,
+  packageId: "growth",
+  dailyBudget: 180,
+  totalBudget: 2990,
   rawOfferText: "",
   sourceImageUrl: "",
   croppedImages: {},
@@ -49,6 +53,7 @@ export const EMPTY_WIZARD_DRAFT: CampaignWizardDraft = {
 };
 
 export function draftToCampaignInput(draft: CampaignWizardDraft): CampaignInput {
+  const pkg = getAdPackage(draft.packageId);
   const name =
     draft.campaignName.trim() ||
     `${draft.businessName.trim() || "Kampanya"} — ${draft.city.trim() || "Yerel"}`;
@@ -57,8 +62,9 @@ export function draftToCampaignInput(draft: CampaignWizardDraft): CampaignInput 
     name,
     objective: draft.objective,
     targetAudience: draft.targetAudience.trim(),
-    dailyBudget: draft.dailyBudget,
-    totalBudget: draft.totalBudget > 0 ? draft.totalBudget : undefined,
+    dailyBudget: pkg.dailyBudget,
+    totalBudget: pkg.price,
+    packageId: pkg.id,
     location: {
       city: draft.city.trim(),
       district: draft.district.trim() || undefined,
@@ -67,7 +73,8 @@ export function draftToCampaignInput(draft: CampaignWizardDraft): CampaignInput 
     rawOfferText: draft.rawOfferText.trim(),
     sourceImageUrl: draft.sourceImageUrl || undefined,
     variations: draft.variations,
-    status: draft.variations.length > 0 ? "ready" : "draft",
+    status: "pending_payment",
+    customerEmail: draft.customerEmail.trim() || undefined,
   };
 }
 
@@ -78,6 +85,9 @@ export function validateWizardStep(
   switch (stepId) {
     case "identity":
       if (!draft.businessName.trim()) return "İşletme adını girin.";
+      if (!draft.customerEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(draft.customerEmail)) {
+        return "Geçerli bir e-posta adresi girin — ödeme linki buraya gönderilir.";
+      }
       if (!draft.category.trim()) return "Kategori seçin.";
       return null;
     case "location":
@@ -89,8 +99,8 @@ export function validateWizardStep(
       }
       return null;
     case "budget":
-      if (!Number.isFinite(draft.dailyBudget) || draft.dailyBudget < 50) {
-        return "Günlük bütçe en az 50 TL olmalıdır (anlamlı test için).";
+      if (!draft.packageId || !getAdPackage(draft.packageId)) {
+        return "Bir reklam paketi seçin — ödeyeceğiniz tutar net olsun.";
       }
       return null;
     case "offer":

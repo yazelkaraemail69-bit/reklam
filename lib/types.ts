@@ -124,7 +124,11 @@ export interface Campaign {
   /** Kullanıcının yüklediği ana görsel */
   sourceImageUrl?: string;
   variations: AdVariation[];
-  status: "draft" | "ready" | "running" | "paused" | "completed";
+  status: "draft" | "pending_payment" | "ready" | "running" | "paused" | "completed";
+  /** Kayıt / fatura e-postası */
+  customerEmail?: string;
+  /** Seçilen sabit paket (starter | growth | pro) */
+  packageId?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -132,6 +136,35 @@ export interface Campaign {
 export type CampaignInput = Omit<Campaign, "id" | "createdAt" | "updatedAt" | "variations"> & {
   variations?: AdVariationInput[];
 };
+
+/** Ödeme siparişi — Iyzico Link ile tahsilat */
+export type PaymentOrderStatus = "pending" | "paid" | "failed" | "expired" | "cancelled";
+
+export interface PaymentOrder {
+  id: string;
+  campaignId: string;
+  customerEmail: string;
+  customerName: string;
+  /** Tahsil edilecek tutar (TRY) */
+  amount: number;
+  currency: "TRY";
+  /** Sabit paket id (varsa) */
+  packageId?: string;
+  status: PaymentOrderStatus;
+  /** Iyzico conversationId — webhook eşlemesi için (genelde order id) */
+  conversationId: string;
+  iyzicoToken?: string;
+  iyzicoPaymentUrl?: string;
+  iyzicoPaymentId?: string;
+  iyzicoMode?: "iyzilink" | "fastlink";
+  emailSentAt?: string;
+  emailError?: string;
+  paidAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type PaymentOrderInput = Omit<PaymentOrder, "id" | "createdAt" | "updatedAt">;
 
 /**
  * Kampanya / varyasyon performans metrikleri.

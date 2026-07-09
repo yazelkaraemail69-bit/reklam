@@ -20,6 +20,9 @@ export function Navbar({ siteName }: { siteName: string }) {
           <a href="#ozellikler" className="transition-colors hover:text-brand-dark">
             Özellikler
           </a>
+          <a href="#paketler" className="transition-colors hover:text-brand-dark">
+            Paketler
+          </a>
           <a href="#ornekler" className="transition-colors hover:text-brand-dark">
             Örnekler
           </a>

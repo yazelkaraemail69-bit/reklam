@@ -35,7 +35,14 @@ const AD_VARIATION_STATUSES: AdVariationStatus[] = [
   "winner",
 ];
 
-const CAMPAIGN_STATUSES = ["draft", "ready", "running", "paused", "completed"] as const;
+const CAMPAIGN_STATUSES = [
+  "draft",
+  "pending_payment",
+  "ready",
+  "running",
+  "paused",
+  "completed",
+] as const;
 
 const REQUIRED_FIELDS: (keyof BusinessInput)[] = [
   "name",
@@ -231,5 +238,7 @@ export function normalizeCampaignInput(body: RawInput): CampaignInput {
       .filter((item): item is RawInput => typeof item === "object" && item !== null)
       .map((item, index) => normalizeVariation(item, index)),
     status,
+    customerEmail: asString(body.customerEmail) || undefined,
+    packageId: asString(body.packageId) || undefined,
   };
 }

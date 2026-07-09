@@ -71,12 +71,74 @@ export const AD_CTAS = [
   { value: "shop_now" as const, label: "Alışverişe Başla" },
 ] as const;
 
-/** Wizard adım sırası — stratejik veri akışı (Adım 2'de UI bağlanacak) */
+/**
+ * Sabit reklam paketleri — esnaf kuruşu kuruşuna bilir.
+ * price = Iyzico'ya giden tahsilat (medya + hazırlık hizmeti dahil paket fiyatı).
+ * Yayın: ödeme sonrası ekip 24 saat içinde manuel açar (API otomasyonu sonraki aşama).
+ */
+export const AD_PACKAGES = [
+  {
+    id: "starter" as const,
+    name: "Başlangıç",
+    tagline: "Yerel esnaf için",
+    price: 1490,
+    durationDays: 7,
+    dailyBudget: 150,
+    recommended: false,
+    features: [
+      "7 gün yayın",
+      "A/B metin varyasyonları",
+      "Instagram + Reels görsel hazırlığı",
+      "WhatsApp odaklı hedefleme",
+      "24 saat içinde yayına alma",
+    ],
+  },
+  {
+    id: "growth" as const,
+    name: "Büyüme",
+    tagline: "Daha fazla mesaj",
+    price: 2990,
+    durationDays: 14,
+    dailyBudget: 180,
+    recommended: true,
+    features: [
+      "14 gün yayın",
+      "3 A/B varyasyon + kazanan seçimi",
+      "1:1 / 9:16 / 16:9 görseller",
+      "Lokasyon + hedef kitle optimizasyonu",
+      "Haftalık performans özeti",
+    ],
+  },
+  {
+    id: "pro" as const,
+    name: "Pro",
+    tagline: "Bölgede liderlik",
+    price: 4990,
+    durationDays: 30,
+    dailyBudget: 140,
+    recommended: false,
+    features: [
+      "30 gün yayın",
+      "Öncelikli yayına alma",
+      "Genişletilmiş A/B testi",
+      "Vitrin sayfası dahil yönlendirme",
+      "Dönüşüm odaklı metin revizyonu",
+    ],
+  },
+] as const;
+
+export type AdPackageId = (typeof AD_PACKAGES)[number]["id"];
+
+export function getAdPackage(id: string | undefined) {
+  return AD_PACKAGES.find((pkg) => pkg.id === id) ?? AD_PACKAGES[0];
+}
+
+/** Wizard adım sırası */
 export const CAMPAIGN_WIZARD_STEPS = [
   { id: "identity", title: "İşletme", hint: "Kim olduğunuzu tanımlayın" },
   { id: "location", title: "Lokasyon", hint: "Nerede hizmet veriyorsunuz?" },
   { id: "audience", title: "Hedef Kitle", hint: "Kime ulaşmak istiyorsunuz?" },
-  { id: "budget", title: "Bütçe", hint: "Ne kadar harcayabilirsiniz?" },
+  { id: "budget", title: "Paket", hint: "Ne kadar ödeyeceğinizi seçin" },
   { id: "offer", title: "Teklif Metni", hint: "Ne satıyorsunuz?" },
   { id: "creative", title: "Görsel", hint: "Reklam görsellerinizi hazırlayın" },
   { id: "variations", title: "Varyasyonlar", hint: "A/B test metinlerini onaylayın" },

@@ -2,9 +2,9 @@ import { LinkButton } from "@/components/ui/LinkButton";
 import { ArrowRightIcon, CheckCircleIcon } from "@/components/ui/icons";
 
 const HIGHLIGHTS = [
-  "7 adımlık sihirbaz — reklam bilmenize gerek yok",
-  "A/B metin varyasyonları otomatik üretilir",
-  "1:1, 9:16, 16:9 görsel hazırlığı tek yüklemede",
+  "5 dakikada reklamın hazır",
+  "Sen yaz, biz satış odaklı metne dönüştürelim",
+  "Gizli ücret yok — paket fiyatı net tutar",
 ];
 
 export function HeroSection() {
@@ -25,12 +25,12 @@ export function HeroSection() {
             Reklam Vitrini
           </p>
           <h1 className="max-w-xl text-4xl font-black leading-[1.1] sm:text-5xl lg:text-6xl">
-            Reklam bilmeden,{" "}
-            <span className="text-brand-light">dönüşüm odaklı</span> kampanya oluşturun
+            Meta paneliyle uğraşmadan,{" "}
+            <span className="text-brand-light">5 dakikada</span> reklam verin
           </h1>
           <p className="max-w-lg text-lg leading-8 text-white/85 sm:text-xl">
-            Hedef kitle, bütçe, lokasyon ve satış metinlerini adım adım girin; sistem A/B
-            varyasyonlarını ve platform görsellerini sizin için hazırlasın.
+            Kötü bir fotoğraf ve iki cümle yeter. Biz satış odaklı metin ve görsel formatlarını
+            hazırlarız; siz paketi seçip ödersiniz. Gizli ücret yok.
           </p>
 
           <div className="flex flex-col gap-3 sm:flex-row">
@@ -38,12 +38,12 @@ export function HeroSection() {
               Kampanya Oluştur <ArrowRightIcon className="h-5 w-5" />
             </LinkButton>
             <LinkButton
-              href="#nasil-calisir"
+              href="#paketler"
               size="lg"
               variant="outline"
               className="border-white/40 bg-transparent text-white hover:bg-white/10"
             >
-              Nasıl çalışır?
+              Paketleri gör
             </LinkButton>
           </div>
 
@@ -62,9 +62,9 @@ export function HeroSection() {
             <div className="space-y-3">
               {[
                 { step: "01", label: "İşletme & lokasyon" },
-                { step: "02", label: "Hedef kitle & bütçe" },
-                { step: "03", label: "Teklif + görsel kırpma" },
-                { step: "04", label: "A/B metin varyasyonları" },
+                { step: "02", label: "Paket seç (net fiyat)" },
+                { step: "03", label: "Görsel + canlı önizleme" },
+                { step: "04", label: "Öde → 24s içinde yayın" },
               ].map((item, index) => (
                 <div
                   key={item.step}
@@ -79,7 +79,7 @@ export function HeroSection() {
               ))}
             </div>
             <p className="mt-5 text-center text-xs font-semibold uppercase tracking-wide text-brand-light">
-              7 adımlık kampanya sihirbazı
+              Zaman · AI metin · Bütçe kontrolü
             </p>
           </div>
         </div>
