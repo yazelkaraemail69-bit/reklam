@@ -56,7 +56,11 @@ export function PricingSection() {
                   </li>
                 ))}
               </ul>
-              <LinkButton href="/kampanya" className="mt-6 w-full" variant={pkg.recommended ? "primary" : "outline"}>
+              <LinkButton
+                href={`/kampanya?package=${pkg.id}`}
+                className="mt-6 w-full"
+                variant={pkg.recommended ? "primary" : "outline"}
+              >
                 Bu paketi seç
               </LinkButton>
             </div>

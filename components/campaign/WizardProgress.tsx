@@ -3,9 +3,10 @@ import { cn } from "@/lib/utils";
 
 interface WizardProgressProps {
   currentIndex: number;
+  onStepSelect?: (index: number) => void;
 }
 
-export function WizardProgress({ currentIndex }: WizardProgressProps) {
+export function WizardProgress({ currentIndex, onStepSelect }: WizardProgressProps) {
   const current = CAMPAIGN_WIZARD_STEPS[currentIndex];
   const total = CAMPAIGN_WIZARD_STEPS.length;
 
@@ -32,14 +33,20 @@ export function WizardProgress({ currentIndex }: WizardProgressProps) {
         {CAMPAIGN_WIZARD_STEPS.map((step, index) => {
           const done = index < currentIndex;
           const active = index === currentIndex;
+          const clickable = Boolean(onStepSelect) && index <= currentIndex;
           return (
             <li key={step.id} className="min-w-0">
-              <div
+              <button
+                type="button"
+                disabled={!clickable}
+                onClick={() => onStepSelect?.(index)}
                 className={cn(
-                  "rounded-xl border px-2 py-2.5 text-center transition-colors",
+                  "w-full rounded-xl border px-2 py-2.5 text-center transition-colors",
                   active && "border-brand bg-brand-50",
-                  done && "border-brand/40 bg-white",
-                  !active && !done && "border-slate-200 bg-white"
+                  done && "border-brand/40 bg-white hover:border-brand",
+                  !active && !done && "border-slate-200 bg-white",
+                  clickable && "cursor-pointer",
+                  !clickable && "cursor-default"
                 )}
               >
                 <span
@@ -60,7 +67,7 @@ export function WizardProgress({ currentIndex }: WizardProgressProps) {
                 >
                   {step.title}
                 </p>
-              </div>
+              </button>
             </li>
           );
         })}

@@ -1,8 +1,8 @@
 const STEPS = [
   {
     number: "01",
-    title: "İşletme ve lokasyon",
-    description: "Kim olduğunuzu ve nerede hizmet verdiğinizi girin. Dar lokasyon = daha ucuz tıklama.",
+    title: "İşletme ve hedef",
+    description: "Kim olduğunuzu, nerede hizmet verdiğinizi ve kime ulaşmak istediğinizi girin.",
   },
   {
     number: "02",
@@ -14,7 +14,7 @@ const STEPS = [
     number: "03",
     title: "Önizle, öde, yayınla",
     description:
-      "Instagram akış/hikâye önizlemesini görün. Iyzico ile ödeyin; 24 saat içinde yayına alınır.",
+      "Görsel ve metinleri onaylayın. Iyzico ile ödeyin; ekibimiz 24 saat içinde yayına alır.",
   },
 ];
 
@@ -30,7 +30,7 @@ export function HowItWorksSection() {
             Reklamcı olmadan kampanya kurun
           </h2>
           <p className="mt-3 text-base text-slate-600">
-            Sihirbaz sizi yormadan ilerletir; her adımda strateji ipuçları vardır.
+            5 adımlık sihirbaz sizi yormadan ilerletir; siz işinize odaklanın.
           </p>
         </div>
 

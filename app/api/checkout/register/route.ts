@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { registerCampaignCheckout } from "@/lib/checkout";
 import { StorageWriteError } from "@/lib/store";
+import { UploadError } from "@/lib/upload";
 import { normalizeCampaignInput, validateCampaignInput } from "@/lib/validation";
 
 /**
@@ -71,6 +72,9 @@ export async function POST(request: Request) {
   } catch (error) {
     if (error instanceof StorageWriteError) {
       return NextResponse.json({ error: error.message }, { status: 503 });
+    }
+    if (error instanceof UploadError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
     }
     const message = error instanceof Error ? error.message : "Kayıt tamamlanamadı.";
     console.error("[api/checkout/register]", message);

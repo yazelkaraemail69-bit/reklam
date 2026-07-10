@@ -1,10 +1,11 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { CampaignWizard } from "@/components/campaign/CampaignWizard";
 import { StoreIcon } from "@/components/ui/icons";
 
 export const metadata = {
   title: "Reklam Kampanyası Oluştur",
-  description: "Adım adım sihirbaz ile dönüşüm odaklı reklam kampanyası oluşturun.",
+  description: "5 adımlık sihirbaz ile dönüşüm odaklı reklam kampanyası oluşturun.",
 };
 
 export default function KampanyaPage() {
@@ -32,17 +33,19 @@ export default function KampanyaPage() {
       <main className="container-app max-w-3xl py-10 sm:py-14">
         <div className="mb-8 text-center">
           <p className="text-sm font-bold uppercase tracking-wide text-brand-dark">
-            7 adımlık sihirbaz
+            5 adımlık sihirbaz
           </p>
           <h1 className="mt-2 text-3xl font-black text-emerald-950 sm:text-4xl">
             Reklam Kampanyası Oluştur
           </h1>
           <p className="mt-3 text-base text-slate-600 sm:text-lg">
-            Reklam bilmenize gerek yok. Adım adım ilerleyin; hedef kitle, bütçe, görsel ve A/B
-            metinleri sizin için hazırlansın.
+            Reklam bilmenize gerek yok. Adım adım ilerleyin; paket, görsel ve A/B metinleri sizin
+            için hazırlansın.
           </p>
         </div>
-        <CampaignWizard />
+        <Suspense fallback={<p className="text-center text-slate-500">Yükleniyor…</p>}>
+          <CampaignWizard />
+        </Suspense>
       </main>
     </div>
   );

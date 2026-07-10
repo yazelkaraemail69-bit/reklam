@@ -10,7 +10,7 @@ export function CtaSection() {
             İlk kampanyanızı bugün oluşturun
           </h2>
           <p className="max-w-lg leading-7 text-white/90">
-            7 adımlık sihirbazla hedef kitle, bütçe, görsel ve A/B metinleriniz hazır. Kayıt
+            5 adımlık sihirbazla işletme, paket, görsel ve reklam metinleriniz hazır. Kayıt
             gerekmez — hemen başlayın.
           </p>
           <LinkButton
@@ -18,7 +18,7 @@ export function CtaSection() {
             size="lg"
             className="bg-white text-brand-dark hover:bg-brand-50"
           >
-            Kampanya Oluştur <ArrowRightIcon className="h-5 w-5" />
+            Kampanya oluştur <ArrowRightIcon className="h-5 w-5" />
           </LinkButton>
         </div>
       </div>

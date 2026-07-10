@@ -13,9 +13,10 @@ export default async function AdminCampaignsPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-black text-emerald-950">Kampanyalar</h1>
+          <h1 className="text-2xl font-black text-emerald-950">Kampanya başvuruları</h1>
           <p className="mt-1 text-sm text-slate-500">
-            {campaigns.length} kampanya · {readyCount} tanesi hazır / yayında
+            {campaigns.length} başvuru · {readyCount} tanesi hazır / yayında. Müşteri sihirbazı
+            tamamlayınca kayıtlar otomatik listelenir.
           </p>
         </div>
         <LinkButton href="/kampanya">

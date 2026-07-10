@@ -157,19 +157,20 @@ export const AD_PACKAGES = [
 export type AdPackageId = (typeof AD_PACKAGES)[number]["id"];
 
 export function getAdPackage(id: string | undefined) {
-  return AD_PACKAGES.find((pkg) => pkg.id === id) ?? AD_PACKAGES[0];
+  return (
+    AD_PACKAGES.find((pkg) => pkg.id === id) ??
+    AD_PACKAGES.find((pkg) => pkg.id === "growth") ??
+    AD_PACKAGES[0]
+  );
 }
 
-/** Wizard adım sırası */
+/** Wizard adım sırası — 5 adım, akıllı varsayılanlarla sadeleştirilmiş */
 export const CAMPAIGN_WIZARD_STEPS = [
-  { id: "identity", title: "İşletme", hint: "Kim olduğunuzu tanımlayın" },
-  { id: "location", title: "Lokasyon", hint: "Nerede hizmet veriyorsunuz?" },
-  { id: "audience", title: "Hedef Kitle", hint: "Kime ulaşmak istiyorsunuz?" },
-  { id: "platforms", title: "Platform", hint: "Meta Ads mi, Google Ads mi?" },
-  { id: "budget", title: "Paket", hint: "Ne kadar ödeyeceğinizi seçin" },
-  { id: "offer", title: "Teklif Metni", hint: "Ne satıyorsunuz?" },
-  { id: "creative", title: "Görsel", hint: "Reklam görsellerinizi hazırlayın" },
-  { id: "variations", title: "Varyasyonlar", hint: "A/B test metinlerini onaylayın" },
+  { id: "business", title: "İşletme", hint: "Kimsiniz ve neredesiniz?" },
+  { id: "targeting", title: "Hedef", hint: "Kime ve hangi kanalda?" },
+  { id: "package", title: "Paket", hint: "Ne kadar ödeyeceğinizi seçin" },
+  { id: "creative", title: "İçerik", hint: "Teklif ve görsel" },
+  { id: "review", title: "Önizleme", hint: "Metinleri onaylayın" },
 ] as const;
 
 /**

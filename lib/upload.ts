@@ -58,11 +58,19 @@ export async function saveUploadedImage(file: File): Promise<string> {
   }
 
   const fileName = buildFileName(file.type);
+  const buffer = Buffer.from(await file.arrayBuffer());
+  return saveImageBuffer(buffer, file.type, fileName);
+}
 
+async function saveImageBuffer(
+  buffer: Buffer,
+  contentType: string,
+  fileName: string
+): Promise<string> {
   if (hasBlob) {
-    const blob = await put(`shop-images/${fileName}`, file, {
+    const blob = await put(`shop-images/${fileName}`, buffer, {
       access: "public",
-      contentType: file.type,
+      contentType,
       token: BLOB_TOKEN,
     });
     return blob.url;
@@ -70,7 +78,6 @@ export async function saveUploadedImage(file: File): Promise<string> {
 
   try {
     await fs.mkdir(UPLOAD_DIR, { recursive: true });
-    const buffer = Buffer.from(await file.arrayBuffer());
     await fs.writeFile(path.join(UPLOAD_DIR, fileName), buffer);
     return `${PUBLIC_UPLOAD_PREFIX}/${fileName}`;
   } catch {
@@ -79,4 +86,30 @@ export async function saveUploadedImage(file: File): Promise<string> {
       503
     );
   }
+}
+
+/**
+ * data: URL veya http(s) URL alır.
+ * data URL ise Blob/yerel depoya yazar ve kalıcı URL döner; aksi halde aynen bırakır.
+ */
+export async function persistImageReference(url: string | undefined): Promise<string | undefined> {
+  if (!url) return undefined;
+  if (!url.startsWith("data:")) return url;
+
+  const match = /^data:([^;]+);base64,(.+)$/i.exec(url);
+  if (!match) {
+    throw new UploadError("Geçersiz görsel verisi.");
+  }
+
+  const contentType = match[1].toLowerCase();
+  if (!ALLOWED_IMAGE_TYPES.has(contentType)) {
+    throw new UploadError("Sadece JPG, PNG, WEBP veya GIF formatında görsel yükleyebilirsiniz.");
+  }
+
+  const buffer = Buffer.from(match[2], "base64");
+  if (buffer.length > MAX_UPLOAD_BYTES) {
+    throw new UploadError("Görsel boyutu en fazla 8 MB olabilir.");
+  }
+
+  return saveImageBuffer(buffer, contentType, buildFileName(contentType));
 }

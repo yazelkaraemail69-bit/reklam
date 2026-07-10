@@ -14,11 +14,11 @@ export function Navbar({ siteName }: { siteName: string }) {
         </Link>
 
         <div className="hidden items-center gap-8 text-sm font-semibold text-slate-600 sm:flex">
+          <a href="#neden" className="transition-colors hover:text-brand-dark">
+            Neden Biz?
+          </a>
           <a href="#nasil-calisir" className="transition-colors hover:text-brand-dark">
             Nasıl Çalışır
-          </a>
-          <a href="#ozellikler" className="transition-colors hover:text-brand-dark">
-            Özellikler
           </a>
           <a href="#paketler" className="transition-colors hover:text-brand-dark">
             Paketler

@@ -10,34 +10,34 @@ import {
 const FEATURES = [
   {
     Icon: SparklesIcon,
-    title: "AI hazır metin altyapısı",
+    title: "Satış odaklı metin",
     description:
-      "Ham teklifinizi satış sloganlarına dönüştüren modüler katman. DeepSeek / OpenAI bağlanmaya hazır.",
+      "Ham teklifinizi sloganlara dönüştürürüz. Siz yazın; müşteriye hitap eden metin hazır gelsin.",
   },
   {
     Icon: StoreIcon,
     title: "A/B test varyasyonları",
-    description: "Aynı girdiden birden fazla reklam metni; hangisinin daha çok dönüştürdüğünü görün.",
+    description: "Aynı girdiden birden fazla reklam metni; hangisinin daha çok mesaj getirdiğini görün.",
   },
   {
     Icon: ImageIcon,
-    title: "Platform görsel kırpma",
-    description: "Instagram 1:1, Reels 9:16 ve Google Ads 16:9 — tek fotoğraftan üç format.",
+    title: "Hazır görsel formatları",
+    description: "Tek fotoğraftan Instagram, Reels ve Google Ads boyutları — kırpma derdi yok.",
   },
   {
     Icon: LayoutDashboardIcon,
-    title: "Analitik paneli",
-    description: "Gösterim, tıklama, harcama, CTR ve varyasyon karşılaştırması tek bakışta.",
+    title: "Sonuçları takip edin",
+    description: "Gösterim, tıklama ve mesajlar tek bakışta; hangi metnin kazandığını görün.",
   },
   {
     Icon: PhoneIcon,
-    title: "WhatsApp odaklı dönüşüm",
-    description: "Yerel işletmeler için mesaj ve arama CTA’ları — tıklamadan müşteriye.",
+    title: "WhatsApp’a yönlendirme",
+    description: "Yerel işletmeler için mesaj ve arama odaklı reklam — tıklamadan müşteriye.",
   },
   {
     Icon: ShieldCheckIcon,
-    title: "Adım adım onboarding",
-    description: "Reklam jargonuna boğulmadan; her adımda CRO ipuçlarıyla ilerleyen sihirbaz.",
+    title: "Adım adım ilerleme",
+    description: "Reklam jargonuna boğulmadan; her adımda net yönlendirme ile kampanya kurun.",
   },
 ];
 

@@ -2,9 +2,17 @@ import { LinkButton } from "@/components/ui/LinkButton";
 import { ArrowRightIcon, CheckCircleIcon } from "@/components/ui/icons";
 
 const HIGHLIGHTS = [
-  "5 dakikada reklamın hazır",
-  "Sen yaz, biz satış odaklı metne dönüştürelim",
+  "Zamanınızı Meta paneline değil, işinize ayırın",
+  "Profesyonel metin ve görsel kurgusu dahil",
   "Gizli ücret yok — paket fiyatı net tutar",
+];
+
+const FLOW_STEPS = [
+  { step: "01", label: "İşletme & bölge" },
+  { step: "02", label: "Hedef & paket" },
+  { step: "03", label: "Teklif + görsel" },
+  { step: "04", label: "Önizle ve öde" },
+  { step: "05", label: "24s içinde yayın" },
 ];
 
 export function HeroSection() {
@@ -25,17 +33,17 @@ export function HeroSection() {
             Reklam Vitrini
           </p>
           <h1 className="max-w-xl text-4xl font-black leading-[1.1] sm:text-5xl lg:text-6xl">
-            Meta paneliyle uğraşmadan,{" "}
-            <span className="text-brand-light">5 dakikada</span> reklam verin
+            Reklamcı olmadan,{" "}
+            <span className="text-brand-light">profesyonel reklam</span> — dakikalar içinde
           </h1>
           <p className="max-w-lg text-lg leading-8 text-white/85 sm:text-xl">
-            Kötü bir fotoğraf ve iki cümle yeter. Biz satış odaklı metin ve görsel formatlarını
-            hazırlarız; siz paketi seçip ödersiniz. Gizli ücret yok.
+            Kötü bir fotoğraf ve iki cümle yeter. Biz satış odaklı metin ve görselleri hazırlarız;
+            siz paketi seçip ödersiniz. Gizli ücret yok.
           </p>
 
           <div className="flex flex-col gap-3 sm:flex-row">
             <LinkButton href="/kampanya" size="lg">
-              Kampanya Oluştur <ArrowRightIcon className="h-5 w-5" />
+              Kampanya oluştur <ArrowRightIcon className="h-5 w-5" />
             </LinkButton>
             <LinkButton
               href="#paketler"
@@ -60,16 +68,11 @@ export function HeroSection() {
         <div className="relative hidden lg:block" aria-hidden="true">
           <div className="rounded-3xl border border-white/15 bg-white/5 p-6 backdrop-blur">
             <div className="space-y-3">
-              {[
-                { step: "01", label: "İşletme & lokasyon" },
-                { step: "02", label: "Paket seç (net fiyat)" },
-                { step: "03", label: "Görsel + canlı önizleme" },
-                { step: "04", label: "Öde → 24s içinde yayın" },
-              ].map((item, index) => (
+              {FLOW_STEPS.map((item, index) => (
                 <div
                   key={item.step}
                   className="flex items-center gap-4 rounded-2xl border border-white/10 bg-brand-dark/60 px-4 py-3"
-                  style={{ opacity: 1 - index * 0.08 }}
+                  style={{ opacity: 1 - index * 0.06 }}
                 >
                   <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand text-sm font-black text-white">
                     {item.step}
@@ -79,7 +82,7 @@ export function HeroSection() {
               ))}
             </div>
             <p className="mt-5 text-center text-xs font-semibold uppercase tracking-wide text-brand-light">
-              Zaman · AI metin · Bütçe kontrolü
+              Zaman · Profesyonel kurgu · Net fiyat
             </p>
           </div>
         </div>

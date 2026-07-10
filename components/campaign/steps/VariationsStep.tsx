@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { CampaignWizardDraft } from "@/lib/campaign-draft";
 import type { AdCta, AdVariationInput } from "@/lib/types";
 import { AD_CTAS } from "@/lib/constants";
@@ -19,6 +19,7 @@ interface StepProps {
 export function VariationsStep({ draft, onChange }: StepProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const autoStarted = useRef(false);
 
   async function generate() {
     setError("");
@@ -48,6 +49,14 @@ export function VariationsStep({ draft, onChange }: StepProps) {
     }
   }
 
+  useEffect(() => {
+    if (autoStarted.current) return;
+    if (draft.variations.length >= 2) return;
+    autoStarted.current = true;
+    void generate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only auto-run once on mount
+  }, []);
+
   function updateVariation(index: number, patch: Partial<AdVariationInput>) {
     const next = draft.variations.map((item, i) =>
       i === index ? { ...item, ...patch } : item
@@ -59,9 +68,9 @@ export function VariationsStep({ draft, onChange }: StepProps) {
     <div className="space-y-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="text-xl font-black text-emerald-950">A/B reklam varyasyonları</h2>
+          <h2 className="text-xl font-black text-emerald-950">Reklam metinlerinizi onaylayın</h2>
           <p className="mt-1 text-sm text-slate-600">
-            Aynı girdiden birden fazla metin — hangisinin daha çok dönüştürdüğünü test edin.
+            Metinler otomatik üretildi. İsterseniz düzenleyin; en az 2 varyasyon gerekli.
           </p>
         </div>
         <Button type="button" onClick={generate} disabled={loading}>
@@ -74,6 +83,13 @@ export function VariationsStep({ draft, onChange }: StepProps) {
         <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
           {error}
         </p>
+      ) : null}
+
+      {loading && draft.variations.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center">
+          <LoaderIcon className="mx-auto h-8 w-8 text-brand" />
+          <p className="mt-3 font-semibold text-slate-700">Metinler hazırlanıyor…</p>
+        </div>
       ) : null}
 
       {draft.variations.length === 0 && !loading ? (
@@ -132,8 +148,7 @@ export function VariationsStep({ draft, onChange }: StepProps) {
       </div>
 
       <CroTip>
-        En az 2 varyasyonu aynı anda yayınlayın; 3–5 gün sonra tıklama ve mesaj oranına göre
-        kazananı seçin. Tek metinle &quot;en iyisi bu&quot; diyemezsiniz.
+        En az 2 varyasyonu aynı anda yayınlayın; birkaç gün sonra mesaj oranına göre kazananı seçin.
       </CroTip>
     </div>
   );

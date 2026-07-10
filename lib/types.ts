@@ -108,6 +108,10 @@ export interface Campaign {
   id: string;
   /** Bağlı işletme (opsiyonel — wizard tamamlanınca bağlanır) */
   businessId?: string;
+  /** Wizard'dan gelen işletme adı */
+  businessName?: string;
+  /** İşletme kategorisi */
+  category?: string;
   name: string;
   objective: CampaignObjective;
   /** Ham hedef kitle tanımı (örn. "25-45 yaş, kadın, güzellik salonu arayan") */

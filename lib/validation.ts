@@ -231,6 +231,8 @@ export function normalizeCampaignInput(body: RawInput): CampaignInput {
 
   return {
     businessId: asString(body.businessId) || undefined,
+    businessName: asString(body.businessName) || undefined,
+    category: asString(body.category) || undefined,
     name: asString(body.name),
     objective: body.objective as CampaignObjective,
     targetAudience: asString(body.targetAudience),

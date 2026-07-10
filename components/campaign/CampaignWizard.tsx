@@ -1,27 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   EMPTY_WIZARD_DRAFT,
   draftToCampaignInput,
   validateWizardStep,
   type CampaignWizardDraft,
 } from "@/lib/campaign-draft";
-import { CAMPAIGN_WIZARD_STEPS, BUSINESS_CATEGORIES, getAdPackage } from "@/lib/constants";
+import { CAMPAIGN_WIZARD_STEPS, BUSINESS_CATEGORIES, getAdPackage, type AdPackageId } from "@/lib/constants";
 import { Button } from "@/components/ui/Button";
 import { Card, CardBody } from "@/components/ui/Card";
 import { ArrowLeftIcon, ArrowRightIcon, CheckIcon, LoaderIcon } from "@/components/ui/icons";
 import { WizardProgress } from "@/components/campaign/WizardProgress";
 import { AdLivePreview } from "@/components/campaign/AdLivePreview";
 import { IyzicoTrustBadge } from "@/components/campaign/IyzicoTrustBadge";
-import { IdentityStep } from "@/components/campaign/steps/IdentityStep";
-import { LocationStep } from "@/components/campaign/steps/LocationStep";
-import { AudienceStep } from "@/components/campaign/steps/AudienceStep";
-import { PlatformsStep } from "@/components/campaign/steps/PlatformsStep";
+import { BusinessStep } from "@/components/campaign/steps/BusinessStep";
+import { TargetingStep } from "@/components/campaign/steps/TargetingStep";
 import { BudgetStep } from "@/components/campaign/steps/BudgetStep";
-import { OfferStep } from "@/components/campaign/steps/OfferStep";
-import { CreativeStep } from "@/components/campaign/steps/CreativeStep";
+import { CreativeContentStep } from "@/components/campaign/steps/CreativeContentStep";
 import { VariationsStep } from "@/components/campaign/steps/VariationsStep";
 
 const INITIAL_DRAFT: CampaignWizardDraft = {
@@ -41,15 +39,29 @@ interface CheckoutSuccess {
 }
 
 export function CampaignWizard() {
+  const searchParams = useSearchParams();
   const [stepIndex, setStepIndex] = useState(0);
   const [draft, setDraft] = useState<CampaignWizardDraft>(INITIAL_DRAFT);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState<CheckoutSuccess | null>(null);
 
+  useEffect(() => {
+    const pkgParam = searchParams.get("package");
+    if (pkgParam === "starter" || pkgParam === "growth" || pkgParam === "pro") {
+      const pkg = getAdPackage(pkgParam);
+      setDraft((current) => ({
+        ...current,
+        packageId: pkg.id as AdPackageId,
+        dailyBudget: pkg.dailyBudget,
+        totalBudget: pkg.price,
+      }));
+    }
+  }, [searchParams]);
+
   const step = CAMPAIGN_WIZARD_STEPS[stepIndex];
   const isLast = stepIndex === CAMPAIGN_WIZARD_STEPS.length - 1;
-  const showPreview = step.id === "offer" || step.id === "creative" || step.id === "variations";
+  const showPreview = step.id === "creative" || step.id === "review";
   const previewVariation = draft.variations[0] ?? null;
   const selectedPackage = getAdPackage(draft.packageId);
 
@@ -193,29 +205,51 @@ export function CampaignWizard() {
 
   return (
     <div className="space-y-6">
-      <WizardProgress currentIndex={stepIndex} />
+      <WizardProgress
+        currentIndex={stepIndex}
+        onStepSelect={(index) => {
+          setError("");
+          setStepIndex(index);
+        }}
+      />
 
       <div className={showPreview ? "grid gap-6 lg:grid-cols-[1fr_280px]" : undefined}>
         <Card>
           <CardBody className="space-y-6">
-            {step.id === "identity" ? <IdentityStep draft={draft} onChange={patchDraft} /> : null}
-            {step.id === "location" ? <LocationStep draft={draft} onChange={patchDraft} /> : null}
-            {step.id === "audience" ? <AudienceStep draft={draft} onChange={patchDraft} /> : null}
-            {step.id === "platforms" ? <PlatformsStep draft={draft} onChange={patchDraft} /> : null}
-            {step.id === "budget" ? <BudgetStep draft={draft} onChange={patchDraft} /> : null}
-            {step.id === "offer" ? <OfferStep draft={draft} onChange={patchDraft} /> : null}
-            {step.id === "creative" ? <CreativeStep draft={draft} onChange={patchDraft} /> : null}
-            {step.id === "variations" ? (
-              <VariationsStep draft={draft} onChange={patchDraft} />
+            {step.id === "business" ? <BusinessStep draft={draft} onChange={patchDraft} /> : null}
+            {step.id === "targeting" ? <TargetingStep draft={draft} onChange={patchDraft} /> : null}
+            {step.id === "package" ? <BudgetStep draft={draft} onChange={patchDraft} /> : null}
+            {step.id === "creative" ? (
+              <CreativeContentStep draft={draft} onChange={patchDraft} />
             ) : null}
+            {step.id === "review" ? <VariationsStep draft={draft} onChange={patchDraft} /> : null}
 
             {error ? (
-              <p
-                className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+              <div
+                className="space-y-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
                 role="alert"
               >
-                {error}
-              </p>
+                <p>{error}</p>
+                {/görsel|teklif|içerik/i.test(error) ? (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="border-red-300 bg-white text-red-800 hover:bg-red-50"
+                    onClick={() => {
+                      const creativeIndex = CAMPAIGN_WIZARD_STEPS.findIndex(
+                        (item) => item.id === "creative"
+                      );
+                      if (creativeIndex >= 0) {
+                        setStepIndex(creativeIndex);
+                        setError("");
+                      }
+                    }}
+                  >
+                    İçerik adımına git · düzelt
+                  </Button>
+                ) : null}
+              </div>
             ) : null}
 
             {isLast ? <IyzicoTrustBadge /> : null}

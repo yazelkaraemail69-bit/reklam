@@ -12,6 +12,7 @@ import { createPaymentLink, isIyzicoConfigured, IyzicoError } from "@/lib/iyzico
 import { EmailError, sendPaymentLinkEmail } from "@/lib/email";
 import { orderToEmailPayload } from "@/lib/email/templates";
 import { getAdPackage } from "@/lib/constants";
+import { persistImageReference, UploadError } from "@/lib/upload";
 
 export interface CheckoutRegistrationInput {
   campaign: CampaignInput;
@@ -52,9 +53,26 @@ function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+/** data: URL görselleri Blob/yerel depoya yazar; Upstash'e şişirmez. */
+async function persistCampaignMedia(campaign: CampaignInput): Promise<CampaignInput> {
+  try {
+    const sourceImageUrl = await persistImageReference(campaign.sourceImageUrl);
+    const variations = await Promise.all(
+      (campaign.variations ?? []).map(async (variation) => ({
+        ...variation,
+        imageUrl: await persistImageReference(variation.imageUrl),
+      }))
+    );
+    return { ...campaign, sourceImageUrl, variations };
+  } catch (error) {
+    if (error instanceof UploadError) throw error;
+    throw new UploadError("Kampanya görselleri kaydedilemedi.", 500);
+  }
+}
+
 /**
  * Kampanya kaydı + Iyzico link + ödeme e-postası.
- * Iyzico/e-posta hatalarında sistem çökmez; order pending kalır, uyarılar döner.
+ * Müşteri başvurusu admin paneline (kampanyalar) otomatik düşer.
  */
 export async function registerCampaignCheckout(
   input: CheckoutRegistrationInput
@@ -64,26 +82,27 @@ export async function registerCampaignCheckout(
     throw new Error("Geçerli bir e-posta adresi girin.");
   }
 
+  const pkg = getAdPackage(input.packageId || input.campaign.packageId);
+  const customerName =
+    input.customerName?.trim() ||
+    input.campaign.businessName?.trim() ||
+    input.campaign.name.split("—")[0]?.trim() ||
+    "Değerli Müşterimiz";
+
   const amount = resolveAmount(input.campaign, input.amount, input.packageId);
   if (amount < 10) {
     throw new Error("Ödeme tutarı en az 10 TL olmalıdır.");
   }
 
-  const pkg = getAdPackage(input.packageId || input.campaign.packageId);
-
-  const customerName =
-    input.customerName?.trim() ||
-    input.campaign.name.split("—")[0]?.trim() ||
-    "Değerli Müşterimiz";
-
+  const mediaReady = await persistCampaignMedia(input.campaign);
   const campaign = await createCampaign({
-    ...input.campaign,
+    ...mediaReady,
     customerEmail: email,
     packageId: pkg.id,
     dailyBudget: pkg.dailyBudget,
     totalBudget: pkg.price,
     status: "pending_payment",
-    variations: (input.campaign.variations ?? []).map((v) => ({
+    variations: (mediaReady.variations ?? []).map((v) => ({
       ...v,
       status: "draft" as const,
     })),

@@ -64,6 +64,8 @@ export function draftToCampaignInput(draft: CampaignWizardDraft): CampaignInput 
 
   return {
     name,
+    businessName: draft.businessName.trim() || undefined,
+    category: draft.category.trim() || undefined,
     objective: draft.objective,
     targetAudience: draft.targetAudience.trim(),
     dailyBudget: pkg.dailyBudget,
@@ -88,42 +90,42 @@ export function validateWizardStep(
   draft: CampaignWizardDraft
 ): string | null {
   switch (stepId) {
-    case "identity":
+    case "business":
       if (!draft.businessName.trim()) return "İşletme adını girin.";
       if (!draft.customerEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(draft.customerEmail)) {
-        return "Geçerli bir e-posta adresi girin — ödeme linki buraya gönderilir.";
+        return "Geçerli bir e-posta adresi girin.";
       }
       if (!draft.category.trim()) return "Kategori seçin.";
-      return null;
-    case "location":
       if (!draft.city.trim()) return "Şehir zorunludur — reklamlar lokasyona göre hedeflenir.";
       return null;
-    case "audience":
+    case "targeting":
       if (!draft.targetAudience.trim() || draft.targetAudience.trim().length < 10) {
         return "Hedef kitlenizi en az birkaç kelimeyle tanımlayın (yaş, cinsiyet, ihtiyaç).";
       }
-      return null;
-    case "platforms":
       if (!draft.platforms.length) {
         return "En az bir platform seçin: Meta Ads veya Google Ads.";
       }
       return null;
-    case "budget":
+    case "package":
       if (!draft.packageId || !getAdPackage(draft.packageId)) {
         return "Bir reklam paketi seçin — ödeyeceğiniz tutar net olsun.";
       }
       return null;
-    case "offer":
+    case "creative":
       if (!draft.rawOfferText.trim() || draft.rawOfferText.trim().length < 15) {
         return "Ne sattığınızı / teklifinizi kısaca yazın (en az 15 karakter).";
       }
-      return null;
-    case "creative":
       if (!draft.sourceImageUrl) {
         return "En az bir görsel yükleyin — reklamsız görsel dönüşüm getirmez.";
       }
       return null;
-    case "variations":
+    case "review":
+      if (!draft.sourceImageUrl) {
+        return "Kampanya görseli eksik. İçerik adımından görsel ekleyin.";
+      }
+      if (!draft.rawOfferText.trim() || draft.rawOfferText.trim().length < 15) {
+        return "Teklif metni eksik veya çok kısa. İçerik adımından düzenleyin.";
+      }
       if (draft.variations.length < 2) {
         return "A/B testi için en az 2 varyasyon gerekli. Metinleri yeniden üretin.";
       }
