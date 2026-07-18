@@ -146,6 +146,14 @@ export function ChevronDownIcon(props: IconProps) {
   );
 }
 
+export function ChevronUpIcon(props: IconProps) {
+  return (
+    <BaseIcon {...props}>
+      <polyline points="18 15 12 9 6 15" />
+    </BaseIcon>
+  );
+}
+
 export function InstagramIcon(props: IconProps) {
   return (
     <BaseIcon {...props}>

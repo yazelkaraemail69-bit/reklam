@@ -281,7 +281,7 @@ export function CampaignWizard() {
               croppedStory={draft.croppedImages["9:16"]}
               croppedLandscape={draft.croppedImages["16:9"]}
               platforms={draft.platforms}
-              variation={previewVariation}
+              variations={draft.variations}
               rawOfferText={draft.rawOfferText}
             />
           </aside>

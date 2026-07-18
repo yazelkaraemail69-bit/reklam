@@ -15,6 +15,7 @@ interface AdLivePreviewProps {
   croppedLandscape?: string;
   platforms?: AdPlatform[];
   variation?: Pick<AdVariationInput, "headline" | "primaryText" | "cta"> | null;
+  variations?: Pick<AdVariationInput, "headline" | "primaryText" | "cta" | "label">[];
   rawOfferText?: string;
 }
 
@@ -31,39 +32,78 @@ export function AdLivePreview({
   croppedLandscape,
   platforms = ["meta"],
   variation,
+  variations = [],
   rawOfferText,
 }: AdLivePreviewProps) {
   const hasMeta = platforms.includes("meta");
   const hasGoogle = platforms.includes("google");
+  
   const [mode, setMode] = useState<PreviewMode>(hasMeta ? "feed" : "display");
+  const [activeVarIdx, setActiveVarIdx] = useState(0);
 
+  // Sync mode based on selected platforms
   useEffect(() => {
     if (mode === "display" && !hasGoogle) setMode("feed");
     if ((mode === "feed" || mode === "story") && !hasMeta && hasGoogle) setMode("display");
   }, [hasMeta, hasGoogle, mode]);
 
-  const headline = variation?.headline || businessName || "İşletme Adınız";
+  // Sync active variation index if variations size changes
+  useEffect(() => {
+    if (variations.length > 0 && activeVarIdx >= variations.length) {
+      setActiveVarIdx(0);
+    }
+  }, [variations, activeVarIdx]);
+
+  // Resolve current active variation
+  const activeVar =
+    variations.length > 0 ? variations[activeVarIdx] : variation;
+
+  const headline = activeVar?.headline || businessName || "İşletme Adınız";
   const body =
-    variation?.primaryText ||
+    activeVar?.primaryText ||
     rawOfferText ||
     "Teklif metniniz ve görseliniz burada reklam gibi görünecek.";
+    
   const feedSrc = croppedFeed || imageUrl;
   const storySrc = croppedStory || imageUrl;
   const displaySrc = croppedLandscape || imageUrl;
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <div className="flex flex-col gap-2">
         <p className="text-sm font-bold text-emerald-950">Canlı önizleme</p>
-        <div className="flex flex-wrap rounded-lg border border-slate-200 bg-white p-0.5 text-xs font-semibold">
+
+        {/* Varyasyon Seçici Sekmeler */}
+        {variations.length > 1 ? (
+          <div className="flex gap-1 rounded-xl bg-slate-100 p-1 border border-slate-200 text-[11px] font-bold">
+            {variations.map((v, idx) => (
+              <button
+                key={v.label || idx}
+                type="button"
+                onClick={() => setActiveVarIdx(idx)}
+                className={cn(
+                  "flex-1 rounded-lg py-1.5 text-center transition-all",
+                  activeVarIdx === idx
+                    ? "bg-white text-emerald-950 shadow-sm"
+                    : "text-slate-500 hover:text-slate-800"
+                )}
+              >
+                Varyasyon {v.label || String.fromCharCode(65 + idx)}
+              </button>
+            ))}
+          </div>
+        ) : null}
+
+        {/* Platform/Biçim Seçici Sekmeler */}
+        <div className="flex flex-wrap rounded-xl border border-slate-200 bg-white p-1 text-[11px] font-bold">
           {hasMeta ? (
             <>
               <button
                 type="button"
                 onClick={() => setMode("feed")}
                 className={cn(
-                  "rounded-md px-2.5 py-1 transition-colors",
-                  mode === "feed" ? "bg-brand text-white" : "text-slate-600 hover:bg-slate-50"
+                  "flex-1 rounded-lg py-1.5 transition-colors text-center",
+                  mode === "feed" ? "bg-brand text-white shadow-sm" : "text-slate-600 hover:bg-slate-50"
                 )}
               >
                 IG Akış
@@ -72,8 +112,8 @@ export function AdLivePreview({
                 type="button"
                 onClick={() => setMode("story")}
                 className={cn(
-                  "rounded-md px-2.5 py-1 transition-colors",
-                  mode === "story" ? "bg-brand text-white" : "text-slate-600 hover:bg-slate-50"
+                  "flex-1 rounded-lg py-1.5 transition-colors text-center",
+                  mode === "story" ? "bg-brand text-white shadow-sm" : "text-slate-600 hover:bg-slate-50"
                 )}
               >
                 Hikâye
@@ -85,8 +125,8 @@ export function AdLivePreview({
               type="button"
               onClick={() => setMode("display")}
               className={cn(
-                "rounded-md px-2.5 py-1 transition-colors",
-                mode === "display" ? "bg-brand text-white" : "text-slate-600 hover:bg-slate-50"
+                "flex-1 rounded-lg py-1.5 transition-colors text-center",
+                mode === "display" ? "bg-brand text-white shadow-sm" : "text-slate-600 hover:bg-slate-50"
               )}
             >
               Google
@@ -95,38 +135,39 @@ export function AdLivePreview({
         </div>
       </div>
 
+      {/* Önizleme Kartları */}
       {mode === "feed" ? (
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-md hover:shadow-lg transition-shadow duration-300">
           <div className="flex items-center gap-2.5 px-3 py-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-brand to-brand-dark text-[10px] font-black text-white">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-brand to-brand-dark text-[10px] font-black text-white shadow-inner">
               {(businessName || "R").slice(0, 1).toUpperCase()}
             </span>
             <div className="min-w-0 flex-1">
               <p className="truncate text-xs font-bold text-slate-900">
                 {businessName || "isletmeniz"}
               </p>
-              <p className="text-[10px] text-slate-400">Sponsorlu · Meta Ads</p>
+              <p className="text-[9px] text-slate-400 font-semibold uppercase tracking-wider">Sponsorlu · Meta Ads</p>
             </div>
           </div>
-          <div className="relative aspect-square bg-slate-100">
+          <div className="relative aspect-square bg-slate-50 border-y border-slate-100">
             {feedSrc ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={feedSrc} alt="Reklam önizleme" className="h-full w-full object-cover" />
             ) : (
-              <div className="flex h-full items-center justify-center px-6 text-center text-xs text-slate-400">
+              <div className="flex h-full items-center justify-center px-6 text-center text-xs text-slate-400 font-medium">
                 Görsel yükleyince burada görünecek
               </div>
             )}
           </div>
-          <div className="space-y-2 px-3 py-3">
-            <p className="text-sm font-bold leading-snug text-slate-900">{headline}</p>
-            <p className="line-clamp-3 text-xs leading-5 text-slate-600">{body}</p>
-            <div className="flex items-center justify-between border-t border-slate-100 pt-2">
-              <span className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-                Instagram
+          <div className="space-y-2 px-4 py-3.5">
+            <p className="text-sm font-black leading-snug text-slate-900">{headline}</p>
+            <p className="line-clamp-3 text-xs leading-relaxed text-slate-600 font-medium">{body}</p>
+            <div className="flex items-center justify-between border-t border-slate-100 pt-3 mt-2">
+              <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400">
+                Instagram Feed
               </span>
-              <span className="rounded-md bg-brand/10 px-2.5 py-1 text-[11px] font-bold text-brand-dark">
-                {ctaLabel(variation?.cta)}
+              <span className="rounded-xl bg-brand/10 px-3.5 py-1.5 text-xs font-bold text-brand-dark shadow-sm">
+                {ctaLabel(activeVar?.cta)}
               </span>
             </div>
           </div>
@@ -134,29 +175,29 @@ export function AdLivePreview({
       ) : null}
 
       {mode === "story" ? (
-        <div className="mx-auto w-full max-w-[220px] overflow-hidden rounded-[1.5rem] border-4 border-slate-900 bg-slate-900 shadow-lg">
-          <div className="relative aspect-[9/16] bg-slate-800">
+        <div className="mx-auto w-full max-w-[240px] overflow-hidden rounded-[2rem] border-8 border-slate-950 bg-slate-950 shadow-xl ring-4 ring-brand/15">
+          <div className="relative aspect-[9/16] bg-slate-900">
             {storySrc ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={storySrc} alt="Hikâye önizleme" className="h-full w-full object-cover" />
             ) : (
-              <div className="flex h-full items-center justify-center px-4 text-center text-[11px] text-white/50">
+              <div className="flex h-full items-center justify-center px-4 text-center text-xs text-white/40 font-medium">
                 Hikâye görseli burada
               </div>
             )}
-            <div className="absolute inset-x-0 top-0 bg-gradient-to-b from-black/50 to-transparent px-3 pb-8 pt-3">
-              <div className="mb-2 h-0.5 rounded-full bg-white/40">
-                <div className="h-full w-1/3 rounded-full bg-white" />
+            <div className="absolute inset-x-0 top-0 bg-gradient-to-b from-black/60 to-transparent px-3 pb-8 pt-4">
+              <div className="mb-2 h-0.5 rounded-full bg-white/30 overflow-hidden">
+                <div className="h-full w-1/3 rounded-full bg-white animate-pulse" />
               </div>
-              <p className="truncate text-[11px] font-bold text-white">
+              <p className="truncate text-[10px] font-bold text-white tracking-wide">
                 {businessName || "isletmeniz"}
               </p>
             </div>
-            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-3 pb-4 pt-10">
-              <p className="text-sm font-bold leading-snug text-white">{headline}</p>
-              <p className="mt-1 line-clamp-2 text-[11px] leading-4 text-white/85">{body}</p>
-              <div className="mt-3 rounded-full bg-white py-2 text-center text-xs font-bold text-slate-900">
-                {ctaLabel(variation?.cta)}
+            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-4 pb-5 pt-12">
+              <p className="text-sm font-black leading-snug text-white">{headline}</p>
+              <p className="mt-1 line-clamp-3 text-[10px] leading-relaxed text-white/80 font-medium">{body}</p>
+              <div className="mt-4 rounded-xl bg-white py-2 text-center text-xs font-bold text-slate-900 shadow-lg active:scale-95 transition-transform">
+                {ctaLabel(activeVar?.cta)}
               </div>
             </div>
           </div>
@@ -164,31 +205,34 @@ export function AdLivePreview({
       ) : null}
 
       {mode === "display" ? (
-        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <div className="relative aspect-video bg-slate-100">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-md hover:shadow-lg transition-shadow duration-300">
+          <div className="relative aspect-video bg-slate-50 border-b border-slate-100">
             {displaySrc ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={displaySrc} alt="Google Display önizleme" className="h-full w-full object-cover" />
             ) : (
-              <div className="flex h-full items-center justify-center px-6 text-center text-xs text-slate-400">
+              <div className="flex h-full items-center justify-center px-6 text-center text-xs text-slate-400 font-medium">
                 16:9 Google Display görseli
               </div>
             )}
           </div>
-          <div className="space-y-2 px-3 py-3">
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+          <div className="space-y-2 px-4 py-3.5">
+            <p className="text-[9px] font-bold uppercase tracking-wider text-slate-400">
               Google Ads · Display
             </p>
-            <p className="text-sm font-bold leading-snug text-slate-900">{headline}</p>
-            <p className="line-clamp-2 text-xs leading-5 text-slate-600">{body}</p>
-            <span className="inline-block rounded-md bg-brand/10 px-2.5 py-1 text-[11px] font-bold text-brand-dark">
-              {ctaLabel(variation?.cta)}
-            </span>
+            <p className="text-sm font-black leading-snug text-slate-900">{headline}</p>
+            <p className="line-clamp-2 text-xs leading-relaxed text-slate-600 font-medium">{body}</p>
+            <div className="flex items-center justify-between border-t border-slate-100 pt-3 mt-1">
+              <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400">Google Ağı</span>
+              <span className="inline-block rounded-xl bg-brand/10 px-3.5 py-1.5 text-xs font-bold text-brand-dark">
+                {ctaLabel(activeVar?.cta)}
+              </span>
+            </div>
           </div>
         </div>
       ) : null}
 
-      <p className="text-center text-[11px] text-slate-500">
+      <p className="text-center text-[10px] text-slate-400 font-medium">
         Önizleme yaklaşıktır. Gerçek yayın seçtiğiniz Ads platformunda açılır.
       </p>
     </div>

@@ -43,13 +43,13 @@ const FEATURES = [
 
 export function FeaturesSection() {
   return (
-    <section id="ozellikler" className="py-20 sm:py-28">
+    <section id="ozellikler" className="py-20 sm:py-28 bg-white">
       <div className="container-app">
         <div className="mx-auto max-w-2xl text-center">
-          <span className="text-sm font-bold uppercase tracking-wide text-brand-dark">
+          <span className="inline-block rounded-full bg-brand/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-brand-dark">
             Özellikler
           </span>
-          <h2 className="mt-3 text-3xl font-black text-emerald-950 sm:text-4xl">
+          <h2 className="mt-4 text-3xl font-black text-emerald-950 sm:text-4xl">
             Dönüşüm için gereken her şey
           </h2>
         </div>
@@ -58,13 +58,17 @@ export function FeaturesSection() {
           {FEATURES.map(({ Icon, title, description }) => (
             <div
               key={title}
-              className="rounded-2xl border border-slate-100 p-6 shadow-sm transition-shadow hover:shadow-lg"
+              className="group rounded-2xl border border-slate-100 bg-white p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 hover:border-brand-light/35"
             >
-              <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand/10 text-brand-dark">
+              <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand/10 text-brand-dark group-hover:bg-brand group-hover:text-white transition-all duration-300">
                 <Icon className="h-6 w-6" />
               </span>
-              <h3 className="mt-4 text-lg font-bold text-emerald-950">{title}</h3>
-              <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
+              <h3 className="mt-4 text-base font-black text-emerald-950 group-hover:text-brand-dark transition-colors duration-300">
+                {title}
+              </h3>
+              <p className="mt-2 text-xs leading-5 text-slate-500 font-medium">
+                {description}
+              </p>
             </div>
           ))}
         </div>

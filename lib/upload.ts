@@ -2,9 +2,6 @@ import { promises as fs } from "fs";
 import path from "path";
 import { put } from "@vercel/blob";
 
-const BLOB_TOKEN = process.env.BLOB_READ_WRITE_TOKEN;
-const hasBlob = Boolean(BLOB_TOKEN);
-
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
 const PUBLIC_UPLOAD_PREFIX = "/uploads";
 
@@ -33,21 +30,24 @@ const EXTENSION_BY_TYPE: Record<string, string> = {
   "image/gif": "gif",
 };
 
+function getBlobToken(): string | undefined {
+  const token = process.env.BLOB_READ_WRITE_TOKEN?.trim();
+  return token || undefined;
+}
+
 function buildFileName(contentType: string): string {
   const ext = EXTENSION_BY_TYPE[contentType] ?? "jpg";
   return `${crypto.randomUUID()}.${ext}`;
 }
 
 export function isPersistentUploadStorageConfigured(): boolean {
-  return hasBlob;
+  return Boolean(getBlobToken());
 }
 
 /**
  * Yüklenen görsel dosyasını kalıcı depoya kaydeder ve herkese açık URL döner.
  * `BLOB_READ_WRITE_TOKEN` tanımlıysa Vercel Blob'a, aksi halde yerel
- * `public/uploads` klasörüne yazar (Vercel'de bu klasör salt-okunurdur; bu
- * yüzden production'da Blob önerilir — tıpkı `lib/store.ts`'teki Upstash
- * deseninde olduğu gibi).
+ * `public/uploads` klasörüne yazar (Vercel'de bu klasör salt-okunurdur).
  */
 export async function saveUploadedImage(file: File): Promise<string> {
   if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
@@ -67,11 +67,12 @@ async function saveImageBuffer(
   contentType: string,
   fileName: string
 ): Promise<string> {
-  if (hasBlob) {
+  const blobToken = getBlobToken();
+  if (blobToken) {
     const blob = await put(`shop-images/${fileName}`, buffer, {
       access: "public",
       contentType,
-      token: BLOB_TOKEN,
+      token: blobToken,
     });
     return blob.url;
   }
@@ -82,7 +83,7 @@ async function saveImageBuffer(
     return `${PUBLIC_UPLOAD_PREFIX}/${fileName}`;
   } catch {
     throw new UploadError(
-      "Kalıcı görsel depolama yapılandırılmamış. Bu ortamda yüklenen görseller saklanamaz. Vercel projenizde Storage sekmesinden Blob bağlayın.",
+      "Kalıcı görsel depolama yapılandırılmamış. Bu ortamda yüklenen görseller saklanamaz. Vercel projenizde Storage sekmesinden Blob bağlayın ve BLOB_READ_WRITE_TOKEN ortam değişkeninin Production'da olduğundan emin olun.",
       503
     );
   }
