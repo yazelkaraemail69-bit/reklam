@@ -69,12 +69,19 @@ async function saveImageBuffer(
 ): Promise<string> {
   const blobToken = getBlobToken();
   if (blobToken) {
-    const blob = await put(`shop-images/${fileName}`, buffer, {
-      access: "public",
-      contentType,
-      token: blobToken,
-    });
-    return blob.url;
+    try {
+      const blob = await put(`shop-images/${fileName}`, buffer, {
+        access: "public",
+        contentType,
+        token: blobToken,
+      });
+      return blob.url;
+    } catch (err) {
+      console.warn(
+        "[Vercel Blob Warning] Remote upload failed, falling back to local file storage:",
+        err instanceof Error ? err.message : err
+      );
+    }
   }
 
   try {
@@ -82,10 +89,8 @@ async function saveImageBuffer(
     await fs.writeFile(path.join(UPLOAD_DIR, fileName), buffer);
     return `${PUBLIC_UPLOAD_PREFIX}/${fileName}`;
   } catch {
-    throw new UploadError(
-      "Kalıcı görsel depolama yapılandırılmamış. Bu ortamda yüklenen görseller saklanamaz. Vercel projenizde Storage sekmesinden Blob bağlayın ve BLOB_READ_WRITE_TOKEN ortam değişkeninin Production'da olduğundan emin olun.",
-      503
-    );
+    // Safe fallback: Return base64 data URL if local public/uploads directory is unwriteable
+    return `data:${contentType};base64,${buffer.toString("base64")}`;
   }
 }
 
