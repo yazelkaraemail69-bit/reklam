@@ -54,6 +54,18 @@ export interface SessionPayload {
   issuedAt: number;
 }
 
+/** Fatura ve Yasal Reklamveren Verileri */
+export interface BillingDetails {
+  type: "individual" | "corporate";
+  companyName?: string;
+  fullName?: string;
+  taxOffice?: string;
+  taxNumber: string; // VKN veya TCKN
+  address: string;
+  city: string;
+  district?: string;
+}
+
 /** Reklam kampanyasının birincil dönüşüm hedefi */
 export type CampaignObjective = "traffic" | "messages" | "leads" | "awareness";
 
@@ -74,6 +86,39 @@ export type AdCta =
   | "book_now"
   | "get_offer"
   | "shop_now";
+
+/** Google Ads Anahtar Kelimesi */
+export interface GoogleAdsKeyword {
+  text: string;
+  matchType: "EXACT" | "PHRASE" | "BROAD";
+}
+
+/** Google Ads Site Bağlantısı (Sitelink) */
+export interface GoogleAdsSitelink {
+  linkText: string;
+  description1: string;
+  description2: string;
+  finalUrl?: string;
+}
+
+/**
+ * Google Ads özel kampanya ve kreatif yapılandırması (100% RSA Uyumlu).
+ * Dinamik Arama Reklamları (RSA) en az 3-15 başlık ve 2-4 açıklama gerektirir.
+ */
+export interface GoogleAdsConfig {
+  /** RSA Başlıkları — Min 3, Max 15 adet. Her biri max 30 karakter. */
+  headlines: string[];
+  /** RSA Açıklamaları — Min 2, Max 4 adet. Her biri max 90 karakter. */
+  descriptions: string[];
+  /** Odak arama anahtar kelimeleri */
+  keywords: GoogleAdsKeyword[];
+  /** Negatif anahtar kelimeler */
+  negativeKeywords: string[];
+  /** Ek bilgi varlıkları / Sitelink'ler */
+  sitelinks?: GoogleAdsSitelink[];
+  /** Öne çıkan açıklama metinleri (Callouts) */
+  callouts?: string[];
+}
 
 /**
  * Tek bir reklam varyasyonu.
@@ -131,12 +176,16 @@ export interface Campaign {
   /** Kullanıcının yüklediği ana görsel */
   sourceImageUrl?: string;
   variations: AdVariation[];
+  /** Google Ads özel yapılandırması (otomatik üretilir veya ayarlanır) */
+  googleAds?: GoogleAdsConfig;
+  /** Fatura ve yasal vergi bilgileri */
+  billing?: BillingDetails;
   status: "draft" | "pending_payment" | "ready" | "running" | "paused" | "completed";
   /** Kayıt / fatura e-postası */
   customerEmail?: string;
   /** Seçilen sabit paket (starter | growth | pro) */
   packageId?: string;
-  /** Müşterinin seçtiği yayın platformları (meta = IG/FB, google = Display/YouTube) */
+  /** Müşterinin seçtiği yayın platformları (meta = IG/FB, google = Display/YouTube/Search) */
   platforms?: AdPlatform[];
   createdAt: string;
   updatedAt: string;

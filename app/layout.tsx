@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ScriptInjector } from "@/components/common/ScriptInjector";
+import { ConsentBanner } from "@/components/common/ConsentBanner";
 import { getSettings } from "@/lib/store";
 import "./globals.css";
 
@@ -46,6 +47,7 @@ export default async function RootLayout({
       <body className={inter.className}>
         <ScriptInjector html={settings.globalHeadScript} />
         {children}
+        <ConsentBanner />
       </body>
     </html>
   );

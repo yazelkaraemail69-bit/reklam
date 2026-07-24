@@ -4,10 +4,12 @@ import type {
   AdPlatform,
   AdVariationInput,
   AdVariationStatus,
+  BillingDetails,
   BusinessInput,
   CampaignInput,
   CampaignObjective,
 } from "./types";
+import { generateGoogleAdsConfig } from "./google-ads-generator";
 
 type RawInput = Record<string, unknown>;
 
@@ -200,6 +202,24 @@ function normalizeVariation(item: RawInput, index: number): AdVariationInput {
   };
 }
 
+function normalizeBilling(raw: unknown): BillingDetails | undefined {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return undefined;
+  const b = raw as RawInput;
+  const taxNumber = asString(b.taxNumber);
+  if (!taxNumber) return undefined;
+
+  return {
+    type: b.type === "corporate" ? "corporate" : "individual",
+    companyName: asString(b.companyName) || undefined,
+    fullName: asString(b.fullName) || undefined,
+    taxOffice: asString(b.taxOffice) || undefined,
+    taxNumber,
+    address: asString(b.address),
+    city: asString(b.city),
+    district: asString(b.district) || undefined,
+  };
+}
+
 export function normalizeCampaignInput(body: RawInput): CampaignInput {
   const rawLocation =
     body.location && typeof body.location === "object" && !Array.isArray(body.location)
@@ -229,28 +249,47 @@ export function normalizeCampaignInput(body: RawInput): CampaignInput {
       typeof item === "string" && AD_PLATFORMS.includes(item as AdPlatform)
   );
 
+  const finalPlatforms: AdPlatform[] = platforms.length > 0 ? platforms : ["meta"];
+  const rawOfferText = asString(body.rawOfferText);
+  const category = asString(body.category);
+  const city = asString(rawLocation.city);
+  const businessName = asString(body.businessName);
+
+  // Google platformu seçiliyse veya googleAds girildiyse otomatik üret/normalize et
+  const googleAds = finalPlatforms.includes("google")
+    ? generateGoogleAdsConfig({
+        businessName,
+        category,
+        city,
+        rawOfferText,
+      })
+    : undefined;
+
   return {
     businessId: asString(body.businessId) || undefined,
-    businessName: asString(body.businessName) || undefined,
-    category: asString(body.category) || undefined,
+    businessName: businessName || undefined,
+    category: category || undefined,
     name: asString(body.name),
     objective: body.objective as CampaignObjective,
     targetAudience: asString(body.targetAudience),
     dailyBudget: Number(body.dailyBudget),
     totalBudget,
     location: {
-      city: asString(rawLocation.city),
+      city,
       district: asString(rawLocation.district) || undefined,
       radiusKm,
     },
-    rawOfferText: asString(body.rawOfferText),
+    rawOfferText,
     sourceImageUrl: asString(body.sourceImageUrl) || undefined,
     variations: rawVariations
       .filter((item): item is RawInput => typeof item === "object" && item !== null)
       .map((item, index) => normalizeVariation(item, index)),
+    googleAds,
+    billing: normalizeBilling(body.billing),
     status,
     customerEmail: asString(body.customerEmail) || undefined,
     packageId: asString(body.packageId) || undefined,
-    platforms: platforms.length > 0 ? platforms : ["meta"],
+    platforms: finalPlatforms,
   };
 }
+
