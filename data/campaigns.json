@@ -1,5 +1,162 @@
 [
   {
+    "businessName": "rehber media",
+    "category": "Güzellik ve Bakım",
+    "name": "rehber media — giresun",
+    "objective": "messages",
+    "targetAudience": "marka imajını güçlendirmeyi hedefleyen işletmeler ve bireysel girişimciler",
+    "dailyBudget": 180,
+    "totalBudget": 2990,
+    "location": {
+      "city": "giresun",
+      "district": "bulancak",
+      "radiusKm": 15
+    },
+    "rawOfferText": "sosyal medya danışmanlık hizmeti ve çeşitli paketler",
+    "sourceImageUrl": "/uploads/22eccd51-512c-4b33-85bb-344761e06464.jpg",
+    "variations": [
+      {
+        "label": "A",
+        "headline": "bulancak, giresun'de rehber media",
+        "primaryText": "sosyal medya danışmanlık hizmeti ve çeşitli paketler marka imajını güçlendirmeyi hedefleyen işletmeler ve bireys… için özel…",
+        "cta": "whatsapp",
+        "aspectRatio": "1:1",
+        "imageUrl": "/uploads/dfc20c36-8b4b-47aa-994c-b9144b31dbb7.jpg",
+        "status": "draft",
+        "source": "template",
+        "id": "0e63b88e-220a-4510-9550-2046b9582ed7",
+        "createdAt": "2026-07-24T16:31:40.853Z",
+        "updatedAt": "2026-07-24T16:31:40.853Z"
+      },
+      {
+        "label": "B",
+        "headline": "Özel Fırsat: sosyal medya danışmanlık h…",
+        "primaryText": "rehber media — bulancak, giresun. marka imajını güçlendirmeyi hedefleyen işletmeler ve bireys…. Kısa süreli kampanya, yerini…",
+        "cta": "whatsapp",
+        "aspectRatio": "9:16",
+        "imageUrl": "/uploads/3cb1427c-0787-4a52-98fb-70b7dc289e24.jpg",
+        "status": "draft",
+        "source": "template",
+        "id": "f6819b9e-c857-43e4-a52d-8cc2f2805ffe",
+        "createdAt": "2026-07-24T16:31:40.853Z",
+        "updatedAt": "2026-07-24T16:31:40.853Z"
+      },
+      {
+        "label": "C",
+        "headline": "Komşularınızın Tercihi: rehber media",
+        "primaryText": "bulancak, giresun içinde güvenilir Güzellik ve Bakım. sosyal medya danışmanlık hizmeti ve çeşitli paketler Randevunuzu 1 dak…",
+        "cta": "whatsapp",
+        "aspectRatio": "16:9",
+        "imageUrl": "/uploads/afc56c55-5cd6-4ea2-a993-1fd5e4449bb8.jpg",
+        "status": "draft",
+        "source": "template",
+        "id": "699b0eec-3876-438a-bdbf-dffc9de022f5",
+        "createdAt": "2026-07-24T16:31:40.853Z",
+        "updatedAt": "2026-07-24T16:31:40.853Z"
+      }
+    ],
+    "googleAds": {
+      "headlines": [
+        "giresun Güzellik ve Bakım Hiz…",
+        "rehber media Kampanyası",
+        "sosyal medya danışmanlık hizm…",
+        "Hemen Fiyat Alın",
+        "WhatsApp'tan Bilgi Al",
+        "Profesyonel Güzellik ve Bakım",
+        "Uygun Fırsatlar",
+        "Randevu İletişim",
+        "giresun İçi Hızlı Hizmet",
+        "En İyi Güzellik ve Bakım Fiya…",
+        "Kaliteli & Güvenilir",
+        "Özel İndirim Fırsatı",
+        "Hemen Arayın",
+        "Detaylı Bilgi Alın",
+        "giresun Uzman Destek"
+      ],
+      "descriptions": [
+        "giresun bölgesinde Güzellik ve Bakım hizmeti için hemen bize ulaşın. Fırsatları kaçırmayı…",
+        "rehber media ile sosyal medya danışmanlık hizmeti ve çeşitli paketler. Uygun fiyatlar ve…",
+        "Profesyonel Güzellik ve Bakım çözümleri. Detaylı bilgi ve randevu için WhatsApp'tan yazın.",
+        "Bölgenizin en çok tercih edilen Güzellik ve Bakım firması. Kampanyalı fiyatlarla hizmetin…"
+      ],
+      "keywords": [
+        {
+          "text": "güzellik ve bakım fiyatları",
+          "matchType": "PHRASE"
+        },
+        {
+          "text": "en yakın güzellik ve bakım",
+          "matchType": "PHRASE"
+        },
+        {
+          "text": "giresun güzellik ve bakım",
+          "matchType": "PHRASE"
+        },
+        {
+          "text": "güzellik ve bakım randevu",
+          "matchType": "PHRASE"
+        },
+        {
+          "text": "güzellik ve bakım iletişim",
+          "matchType": "PHRASE"
+        },
+        {
+          "text": "rehber media",
+          "matchType": "EXACT"
+        }
+      ],
+      "negativeKeywords": [
+        "ücretsiz",
+        "bedava",
+        "nasıl yapılır",
+        "kursu",
+        "eğitimi",
+        "şikayet",
+        "ik",
+        "iş ilanları",
+        "maaşları"
+      ],
+      "sitelinks": [
+        {
+          "linkText": "Güzellik ve Bakım Hizmet…",
+          "description1": "Tüm güzellik ve bakım paketlerimiz…",
+          "description2": "Size en uygun çözümü hemen seçin"
+        },
+        {
+          "linkText": "Kampanyalı Fiyatlar",
+          "description1": "sosyal medya danışmanlık hizmeti v…",
+          "description2": "Sınırlı süre geçerli özel fiyatlar"
+        },
+        {
+          "linkText": "WhatsApp İletişim",
+          "description1": "Anında WhatsApp üzerinden mesaj at…",
+          "description2": "Sorularınızı hemen yanıtlayalım"
+        },
+        {
+          "linkText": "Adres ve Harita",
+          "description1": "giresun lokasyonumuzu görün",
+          "description2": "Kolay ulaşım ve açık adres bilgisi"
+        }
+      ],
+      "callouts": [
+        "Hızlı İletişim",
+        "Uygun Fiyatlar",
+        "Profesyonel Hizmet",
+        "Bölgenizde Lider"
+      ]
+    },
+    "status": "pending_payment",
+    "customerEmail": "yazelkaraemail69@gmail.com",
+    "packageId": "growth",
+    "platforms": [
+      "meta",
+      "google"
+    ],
+    "id": "55961106-ff14-4260-8df5-cad7e2db0257",
+    "createdAt": "2026-07-24T16:31:40.853Z",
+    "updatedAt": "2026-07-24T16:31:40.853Z"
+  },
+  {
     "id": "camp-demo-001",
     "name": "Bahar Kampanyası — Güzellik Salonu",
     "objective": "messages",
@@ -7,7 +164,9 @@
     "dailyBudget": 150,
     "totalBudget": 3000,
     "packageId": "growth",
-    "platforms": ["meta"],
+    "platforms": [
+      "meta"
+    ],
     "location": {
       "city": "İstanbul",
       "district": "Kadıköy",

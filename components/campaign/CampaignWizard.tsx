@@ -30,6 +30,7 @@ const INITIAL_DRAFT: CampaignWizardDraft = {
 interface CheckoutSuccess {
   campaignId: string;
   orderId: string;
+  businessSlug?: string;
   paymentUrl?: string;
   emailSent: boolean;
   email: string;
@@ -117,6 +118,7 @@ export function CampaignWizard() {
       setSuccess({
         campaignId: data.campaign?.id ?? "ok",
         orderId: data.order?.id ?? "",
+        businessSlug: data.businessSlug || data.campaign?.businessId,
         paymentUrl: data.paymentUrl,
         emailSent: Boolean(data.emailSent),
         email: draft.customerEmail.trim(),
@@ -138,23 +140,22 @@ export function CampaignWizard() {
       maximumFractionDigits: 0,
     }).format(success.amount);
 
+    const showcaseUrl = success.businessSlug ? `/${success.businessSlug}` : "/vitrin";
+
     return (
       <Card>
         <CardBody className="space-y-4 py-12 text-center">
           <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-brand text-white">
             <CheckIcon className="h-7 w-7" />
           </span>
-          <h2 className="text-2xl font-black text-emerald-950">Kaydınız alındı — ödeme bekleniyor</h2>
+          <h2 className="text-2xl font-black text-emerald-950">🎉 Reklamınız ve Vitrininiz Başarıyla Oluşturuldu!</h2>
           <p className="mx-auto max-w-md text-slate-600">
             {success.packageName ? (
               <>
                 <strong>{success.packageName}</strong> paketi ({amountLabel}).{" "}
               </>
             ) : null}
-            Yayına almak için Iyzico ödeme linkini tamamlayın.
-            {success.emailSent
-              ? ` Link ${success.email} adresine gönderildi.`
-              : " Ödeme linkini aşağıdan da açabilirsiniz."}
+            İşletmenize özel reklam vitrin web siteniz hazırlandı.
           </p>
 
           {success.warnings.length > 0 ? (
@@ -165,7 +166,26 @@ export function CampaignWizard() {
             </div>
           ) : null}
 
-          <div className="mx-auto max-w-md">
+          <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 pt-4">
+            {/* Primary Button: Live Showcase Website */}
+            <Link
+              href={showcaseUrl}
+              target="_blank"
+              className="inline-flex h-12 items-center justify-center rounded-xl bg-emerald-600 hover:bg-emerald-700 px-6 text-sm font-bold text-white shadow-xl transition-all"
+            >
+              🌐 İşletmenizin Canlı Vitrin Web Sitesini Aç ({showcaseUrl}) ➔
+            </Link>
+
+            {/* Secondary Button: Esnaf Portal */}
+            <Link
+              href={`/portal/dashboard?email=${encodeURIComponent(success.email)}&slug=${encodeURIComponent(success.businessSlug || "")}&campaignId=${success.campaignId}`}
+              className="inline-flex h-12 items-center justify-center rounded-xl bg-slate-900 hover:bg-slate-800 px-6 text-sm font-semibold text-white shadow-md transition-colors"
+            >
+              📊 Esnaf Müşteri Paneline Git ➔
+            </Link>
+          </div>
+
+          <div className="pt-4 max-w-md mx-auto">
             <IyzicoTrustBadge />
           </div>
 
@@ -175,17 +195,11 @@ export function CampaignWizard() {
                 href={success.paymentUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-11 items-center rounded-lg bg-brand px-5 text-sm font-semibold text-white"
+                className="inline-flex h-11 items-center rounded-lg bg-slate-800 border border-slate-700 px-5 text-sm font-semibold text-slate-200"
               >
-                Ödemeyi Tamamla — {amountLabel}
+                Gerçek Iyzico Ödeme Linki ({amountLabel})
               </a>
             ) : null}
-            <Link
-              href="/admin/payments"
-              className="inline-flex h-11 items-center rounded-lg border-2 border-brand px-5 text-sm font-semibold text-brand-dark"
-            >
-              Ödeme durumu
-            </Link>
             <Button
               type="button"
               variant="ghost"

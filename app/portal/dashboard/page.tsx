@@ -9,6 +9,7 @@ import type { Campaign } from "@/lib/types";
 export default function PortalDashboardPage() {
   const searchParams = useSearchParams();
   const customerEmail = searchParams.get("email") || "esnaf@isletme.com";
+  const slugParam = searchParams.get("slug");
 
   // Mock Active Campaign for Esnaf Portal Demonstration
   const mockCampaign: Campaign = {
@@ -93,7 +94,16 @@ export default function PortalDashboardPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            {slugParam ? (
+              <Link
+                href={`/${slugParam}`}
+                target="_blank"
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg shadow-lg transition-all"
+              >
+                🌐 Canlı Vitrin Sayfanızı Gör (/{slugParam}) ➔
+              </Link>
+            ) : null}
             <InvoiceDownloadButton invoice={invoiceData} />
             <Link
               href="/"

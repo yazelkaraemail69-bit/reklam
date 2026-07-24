@@ -1,7 +1,9 @@
 import type { Campaign, CampaignInput, PaymentOrder } from "@/lib/types";
 import {
+  createBusiness,
   createCampaign,
   createPaymentOrder,
+  getBusinessById,
   getCampaignById,
   getPaymentByConversationId,
   getPaymentById,
@@ -26,6 +28,7 @@ export interface CheckoutRegistrationInput {
 export interface CheckoutRegistrationResult {
   campaign: Campaign;
   order: PaymentOrder;
+  businessSlug?: string;
   paymentUrl?: string;
   emailSent: boolean;
   warnings: string[];
@@ -95,8 +98,31 @@ export async function registerCampaignCheckout(
   }
 
   const mediaReady = await persistCampaignMedia(input.campaign);
+
+  const businessName = mediaReady.businessName || mediaReady.name?.split("—")[0]?.trim() || "Canlı İşletme";
+  const category = mediaReady.category || "Diğer";
+
+  let business = mediaReady.businessId ? await getBusinessById(mediaReady.businessId) : null;
+  if (!business) {
+    business = await createBusiness({
+      name: businessName,
+      slogan: mediaReady.rawOfferText || `${businessName} Hizmetleri`,
+      description: mediaReady.rawOfferText || `${businessName} kurumsal dijital vitrin sayfası.`,
+      category,
+      city: mediaReady.location?.city || "İstanbul",
+      phone: "905551234567",
+      whatsapp: "905551234567",
+      coverImageUrl: mediaReady.sourceImageUrl || "/uploads/default-cover.jpg",
+      galleryImages: mediaReady.sourceImageUrl ? [mediaReady.sourceImageUrl] : [],
+      services: [{ title: category, description: mediaReady.rawOfferText || "Kaliteli hizmet" }],
+      social: {},
+      isPublished: true,
+    });
+  }
+
   const campaign = await createCampaign({
     ...mediaReady,
+    businessId: business?.id || mediaReady.businessId,
     customerEmail: email,
     packageId: pkg.id,
     dailyBudget: pkg.dailyBudget,
@@ -185,7 +211,7 @@ export async function registerCampaignCheckout(
     }
   }
 
-  return { campaign, order, paymentUrl, emailSent, warnings };
+  return { campaign, order, businessSlug: business?.slug, paymentUrl, emailSent, warnings };
 }
 
 /**

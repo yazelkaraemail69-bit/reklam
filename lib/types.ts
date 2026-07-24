@@ -39,7 +39,7 @@ export interface Business {
   updatedAt: string;
 }
 
-export type BusinessInput = Omit<Business, "id" | "createdAt" | "updatedAt">;
+export type BusinessInput = Omit<Business, "id" | "slug" | "createdAt" | "updatedAt"> & { slug?: string };
 
 export interface SiteSettings {
   siteName: string;

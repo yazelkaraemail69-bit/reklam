@@ -63,6 +63,7 @@ export async function POST(request: Request) {
       {
         campaign: result.campaign,
         order: result.order,
+        businessSlug: result.businessSlug,
         paymentUrl: result.paymentUrl,
         emailSent: result.emailSent,
         warnings: result.warnings,
