@@ -65,8 +65,8 @@ async function persistCampaignMedia(campaign: CampaignInput): Promise<CampaignIn
     );
     return { ...campaign, sourceImageUrl, variations };
   } catch (error) {
-    if (error instanceof UploadError) throw error;
-    throw new UploadError("Kampanya görselleri kaydedilemedi.", 500);
+    console.warn("[Media Warning] Could not persist image reference, preserving original image:", error);
+    return campaign;
   }
 }
 
