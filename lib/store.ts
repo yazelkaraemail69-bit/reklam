@@ -68,17 +68,29 @@ async function writeJsonFile(filePath: string, data: unknown): Promise<void> {
 
 async function loadBusinesses(): Promise<Business[]> {
   if (hasKv) {
-    const raw = await upstash<string | null>(["GET", "businesses"]);
-    if (!raw) return [];
-    return JSON.parse(raw) as Business[];
+    try {
+      const raw = await upstash<string | null>(["GET", "businesses"]);
+      if (!raw) return [];
+      return JSON.parse(raw) as Business[];
+    } catch (err) {
+      console.warn("[Upstash KV Warning] Fetch failed, falling back to local file:", err instanceof Error ? err.message : err);
+    }
   }
-  return readJsonFile<Business[]>(BUSINESSES_FILE);
+  try {
+    return await readJsonFile<Business[]>(BUSINESSES_FILE);
+  } catch {
+    return [];
+  }
 }
 
 async function saveBusinesses(businesses: Business[]): Promise<void> {
   if (hasKv) {
-    await upstash(["SET", "businesses", JSON.stringify(businesses)]);
-    return;
+    try {
+      await upstash(["SET", "businesses", JSON.stringify(businesses)]);
+      return;
+    } catch (err) {
+      console.warn("[Upstash KV Warning] Save failed, falling back to local file:", err instanceof Error ? err.message : err);
+    }
   }
   await writeJsonFile(BUSINESSES_FILE, businesses);
 }
@@ -93,9 +105,13 @@ const DEFAULT_SETTINGS: SiteSettings = {
 
 async function loadSettings(): Promise<SiteSettings> {
   if (hasKv) {
-    const raw = await upstash<string | null>(["GET", "settings"]);
-    if (!raw) return DEFAULT_SETTINGS;
-    return { ...DEFAULT_SETTINGS, ...(JSON.parse(raw) as Partial<SiteSettings>) };
+    try {
+      const raw = await upstash<string | null>(["GET", "settings"]);
+      if (!raw) return DEFAULT_SETTINGS;
+      return { ...DEFAULT_SETTINGS, ...(JSON.parse(raw) as Partial<SiteSettings>) };
+    } catch (err) {
+      console.warn("[Upstash KV Warning] Settings fetch failed, falling back to local file:", err instanceof Error ? err.message : err);
+    }
   }
   try {
     return await readJsonFile<SiteSettings>(SETTINGS_FILE);
@@ -106,8 +122,12 @@ async function loadSettings(): Promise<SiteSettings> {
 
 async function saveSettings(settings: SiteSettings): Promise<void> {
   if (hasKv) {
-    await upstash(["SET", "settings", JSON.stringify(settings)]);
-    return;
+    try {
+      await upstash(["SET", "settings", JSON.stringify(settings)]);
+      return;
+    } catch (err) {
+      console.warn("[Upstash KV Warning] Settings save failed, falling back to local file:", err instanceof Error ? err.message : err);
+    }
   }
   await writeJsonFile(SETTINGS_FILE, settings);
 }
@@ -217,9 +237,13 @@ function stampVariations(inputs: AdVariationInput[] = [], now: string): AdVariat
 
 async function loadCampaigns(): Promise<Campaign[]> {
   if (hasKv) {
-    const raw = await upstash<string | null>(["GET", "campaigns"]);
-    if (!raw) return [];
-    return JSON.parse(raw) as Campaign[];
+    try {
+      const raw = await upstash<string | null>(["GET", "campaigns"]);
+      if (!raw) return [];
+      return JSON.parse(raw) as Campaign[];
+    } catch (err) {
+      console.warn("[Upstash KV Warning] Campaigns fetch failed, falling back to local file:", err instanceof Error ? err.message : err);
+    }
   }
   try {
     return await readJsonFile<Campaign[]>(CAMPAIGNS_FILE);
@@ -230,8 +254,12 @@ async function loadCampaigns(): Promise<Campaign[]> {
 
 async function saveCampaigns(campaigns: Campaign[]): Promise<void> {
   if (hasKv) {
-    await upstash(["SET", "campaigns", JSON.stringify(campaigns)]);
-    return;
+    try {
+      await upstash(["SET", "campaigns", JSON.stringify(campaigns)]);
+      return;
+    } catch (err) {
+      console.warn("[Upstash KV Warning] Campaigns save failed, falling back to local file:", err instanceof Error ? err.message : err);
+    }
   }
   await writeJsonFile(CAMPAIGNS_FILE, campaigns);
 }
@@ -360,9 +388,13 @@ export function summarizeMetrics(rows: CampaignMetrics[]): CampaignMetricsSummar
 
 async function loadPayments(): Promise<PaymentOrder[]> {
   if (hasKv) {
-    const raw = await upstash<string | null>(["GET", "payments"]);
-    if (!raw) return [];
-    return JSON.parse(raw) as PaymentOrder[];
+    try {
+      const raw = await upstash<string | null>(["GET", "payments"]);
+      if (!raw) return [];
+      return JSON.parse(raw) as PaymentOrder[];
+    } catch (err) {
+      console.warn("[Upstash KV Warning] Payments fetch failed, falling back to local file:", err instanceof Error ? err.message : err);
+    }
   }
   try {
     return await readJsonFile<PaymentOrder[]>(PAYMENTS_FILE);
@@ -373,8 +405,12 @@ async function loadPayments(): Promise<PaymentOrder[]> {
 
 async function savePayments(payments: PaymentOrder[]): Promise<void> {
   if (hasKv) {
-    await upstash(["SET", "payments", JSON.stringify(payments)]);
-    return;
+    try {
+      await upstash(["SET", "payments", JSON.stringify(payments)]);
+      return;
+    } catch (err) {
+      console.warn("[Upstash KV Warning] Payments save failed, falling back to local file:", err instanceof Error ? err.message : err);
+    }
   }
   await writeJsonFile(PAYMENTS_FILE, payments);
 }
