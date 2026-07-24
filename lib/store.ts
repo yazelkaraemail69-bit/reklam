@@ -330,9 +330,13 @@ export async function deleteCampaign(id: string): Promise<boolean> {
 
 async function loadMetrics(): Promise<CampaignMetrics[]> {
   if (hasKv) {
-    const raw = await upstash<string | null>(["GET", "metrics"]);
-    if (!raw) return [];
-    return JSON.parse(raw) as CampaignMetrics[];
+    try {
+      const raw = await upstash<string | null>(["GET", "metrics"]);
+      if (!raw) return [];
+      return JSON.parse(raw) as CampaignMetrics[];
+    } catch (err) {
+      console.warn("[Upstash KV Warning] Metrics fetch failed, falling back to local file:", err instanceof Error ? err.message : err);
+    }
   }
   try {
     return await readJsonFile<CampaignMetrics[]>(METRICS_FILE);
@@ -343,8 +347,12 @@ async function loadMetrics(): Promise<CampaignMetrics[]> {
 
 async function saveMetrics(metrics: CampaignMetrics[]): Promise<void> {
   if (hasKv) {
-    await upstash(["SET", "metrics", JSON.stringify(metrics)]);
-    return;
+    try {
+      await upstash(["SET", "metrics", JSON.stringify(metrics)]);
+      return;
+    } catch (err) {
+      console.warn("[Upstash KV Warning] Metrics save failed, falling back to local file:", err instanceof Error ? err.message : err);
+    }
   }
   await writeJsonFile(METRICS_FILE, metrics);
 }

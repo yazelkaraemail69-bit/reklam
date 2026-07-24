@@ -9,7 +9,7 @@ interface WhatsAppButtonProps {
 export function WhatsAppButton({ whatsapp, businessName }: WhatsAppButtonProps) {
   if (!whatsapp) return null;
 
-  const message = `Merhaba, ${businessName} sayfanız üzerinden bilgi almak istiyorum.`;
+  const message = `Merhaba! ${businessName} Reklam Vitrini sayfanız üzerinden doğrudan sizinle iletişime geçiyorum. Hizmetleriniz ve indirimli teklifleriniz hakkında detaylı bilgi alabilir miyim?`;
 
   return (
     <a
