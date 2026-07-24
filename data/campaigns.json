@@ -1,5 +1,163 @@
 [
   {
+    "businessId": "9c456109-8230-47b0-9903-7ba2a85658b7",
+    "businessName": "rehber media",
+    "category": "Diğer",
+    "name": "rehber media — giresun",
+    "objective": "messages",
+    "targetAudience": "marka imajını güçlendirmek isteyen yerel işletmeler",
+    "dailyBudget": 180,
+    "totalBudget": 2990,
+    "location": {
+      "city": "giresun",
+      "district": "bulancak",
+      "radiusKm": 15
+    },
+    "rawOfferText": "sosyal medya yönetimi gold paketimiz 15.000 tl yerine 10.000 tl dir",
+    "sourceImageUrl": "/uploads/9ebdcc20-df97-4c53-bffd-b182286b1b06.jpg",
+    "variations": [
+      {
+        "label": "A",
+        "headline": "bulancak, giresun'de rehber media",
+        "primaryText": "sosyal medya yönetimi gold paketimiz 15.000 tl yerine 10.000 tl dir marka imajını güçlendirmek isteyen yerel işletmeler için…",
+        "cta": "whatsapp",
+        "aspectRatio": "1:1",
+        "imageUrl": "/uploads/8fc88b00-5dff-49e4-a762-bb96d4e876e8.jpg",
+        "status": "draft",
+        "source": "template",
+        "id": "36be90e4-12d7-45ae-a318-85d8c22fa7d8",
+        "createdAt": "2026-07-24T17:08:54.400Z",
+        "updatedAt": "2026-07-24T17:08:54.400Z"
+      },
+      {
+        "label": "B",
+        "headline": "Özel Fırsat: sosyal medya yönetimi gold…",
+        "primaryText": "rehber media — bulancak, giresun. marka imajını güçlendirmek isteyen yerel işletmeler. Kısa süreli kampanya, yeriniz dolmada…",
+        "cta": "whatsapp",
+        "aspectRatio": "9:16",
+        "imageUrl": "/uploads/47864ff8-266f-418b-bba2-298c1b2aed8b.jpg",
+        "status": "draft",
+        "source": "template",
+        "id": "c2602ba0-e5db-4119-b0fe-01c1526d4dd6",
+        "createdAt": "2026-07-24T17:08:54.400Z",
+        "updatedAt": "2026-07-24T17:08:54.400Z"
+      },
+      {
+        "label": "C",
+        "headline": "Komşularınızın Tercihi: rehber media",
+        "primaryText": "bulancak, giresun içinde güvenilir Diğer. sosyal medya yönetimi gold paketimiz 15.000 tl yerine 10.000 tl dir Randevunuzu 1…",
+        "cta": "whatsapp",
+        "aspectRatio": "16:9",
+        "imageUrl": "/uploads/a96e8369-c5b7-4c8b-937f-251f062235bf.jpg",
+        "status": "draft",
+        "source": "template",
+        "id": "21054e1e-3ac0-40e5-9d30-097bb337b0fa",
+        "createdAt": "2026-07-24T17:08:54.400Z",
+        "updatedAt": "2026-07-24T17:08:54.400Z"
+      }
+    ],
+    "googleAds": {
+      "headlines": [
+        "giresun Diğer Hizmeti",
+        "rehber media Kampanyası",
+        "sosyal medya yönetimi gold pa…",
+        "Hemen Fiyat Alın",
+        "WhatsApp'tan Bilgi Al",
+        "Profesyonel Diğer",
+        "Uygun Fırsatlar",
+        "Randevu İletişim",
+        "giresun İçi Hızlı Hizmet",
+        "En İyi Diğer Fiyatı",
+        "Kaliteli & Güvenilir",
+        "Özel İndirim Fırsatı",
+        "Hemen Arayın",
+        "Detaylı Bilgi Alın",
+        "giresun Uzman Destek"
+      ],
+      "descriptions": [
+        "giresun bölgesinde Diğer hizmeti için hemen bize ulaşın. Fırsatları kaçırmayın!",
+        "rehber media ile sosyal medya yönetimi gold paketimiz 15.000 tl yerine 10.000 tl dir. Uyg…",
+        "Profesyonel Diğer çözümleri. Detaylı bilgi ve randevu için WhatsApp'tan yazın.",
+        "Bölgenizin en çok tercih edilen Diğer firması. Kampanyalı fiyatlarla hizmetinizdeyiz."
+      ],
+      "keywords": [
+        {
+          "text": "diğer fiyatları",
+          "matchType": "PHRASE"
+        },
+        {
+          "text": "en yakın diğer",
+          "matchType": "PHRASE"
+        },
+        {
+          "text": "giresun diğer",
+          "matchType": "PHRASE"
+        },
+        {
+          "text": "diğer randevu",
+          "matchType": "PHRASE"
+        },
+        {
+          "text": "diğer iletişim",
+          "matchType": "PHRASE"
+        },
+        {
+          "text": "rehber media",
+          "matchType": "EXACT"
+        }
+      ],
+      "negativeKeywords": [
+        "ücretsiz",
+        "bedava",
+        "nasıl yapılır",
+        "kursu",
+        "eğitimi",
+        "şikayet",
+        "ik",
+        "iş ilanları",
+        "maaşları"
+      ],
+      "sitelinks": [
+        {
+          "linkText": "Diğer Hizmetleri",
+          "description1": "Tüm diğer paketlerimizi inceleyin",
+          "description2": "Size en uygun çözümü hemen seçin"
+        },
+        {
+          "linkText": "Kampanyalı Fiyatlar",
+          "description1": "sosyal medya yönetimi gold paketim…",
+          "description2": "Sınırlı süre geçerli özel fiyatlar"
+        },
+        {
+          "linkText": "WhatsApp İletişim",
+          "description1": "Anında WhatsApp üzerinden mesaj at…",
+          "description2": "Sorularınızı hemen yanıtlayalım"
+        },
+        {
+          "linkText": "Adres ve Harita",
+          "description1": "giresun lokasyonumuzu görün",
+          "description2": "Kolay ulaşım ve açık adres bilgisi"
+        }
+      ],
+      "callouts": [
+        "Hızlı İletişim",
+        "Uygun Fiyatlar",
+        "Profesyonel Hizmet",
+        "Bölgenizde Lider"
+      ]
+    },
+    "status": "pending_payment",
+    "customerEmail": "yazelkaraemail69@gmail.com",
+    "packageId": "growth",
+    "platforms": [
+      "meta",
+      "google"
+    ],
+    "id": "9467c526-c6d3-4a0c-bef0-1b5be389e4d7",
+    "createdAt": "2026-07-24T17:08:54.400Z",
+    "updatedAt": "2026-07-24T17:08:54.400Z"
+  },
+  {
     "businessName": "rehber media",
     "category": "Güzellik ve Bakım",
     "name": "rehber media — giresun",

@@ -1,5 +1,30 @@
 [
   {
+    "name": "rehber media",
+    "slogan": "sosyal medya yönetimi gold paketimiz 15.000 tl yerine 10.000 tl dir",
+    "description": "sosyal medya yönetimi gold paketimiz 15.000 tl yerine 10.000 tl dir",
+    "category": "Diğer",
+    "city": "giresun",
+    "phone": "905551234567",
+    "whatsapp": "905551234567",
+    "coverImageUrl": "/uploads/9ebdcc20-df97-4c53-bffd-b182286b1b06.jpg",
+    "galleryImages": [
+      "/uploads/9ebdcc20-df97-4c53-bffd-b182286b1b06.jpg"
+    ],
+    "services": [
+      {
+        "title": "Diğer",
+        "description": "sosyal medya yönetimi gold paketimiz 15.000 tl yerine 10.000 tl dir"
+      }
+    ],
+    "social": {},
+    "isPublished": true,
+    "id": "9c456109-8230-47b0-9903-7ba2a85658b7",
+    "slug": "rehber-media",
+    "createdAt": "2026-07-24T17:08:54.387Z",
+    "updatedAt": "2026-07-24T17:08:54.387Z"
+  },
+  {
     "id": "b1e7a1a0-1111-4a2b-9c3d-000000000001",
     "slug": "yesil-vadi-guzellik-salonu",
     "name": "Yeşil Vadi Güzellik Salonu",

@@ -43,9 +43,12 @@ export function centerCropRect(
   }
 
   const height = imageWidth / target;
+  // Smart Top-Center Focus: Dikey fotoğraflarda insan başı ve tabela üst kısımdadır.
+  // Üstten sadece %15 keser, kalan %85 kesintiyi alttan yapar.
+  const y = Math.max(0, (imageHeight - height) * 0.15);
   return {
     x: 0,
-    y: (imageHeight - height) / 2,
+    y,
     width: imageWidth,
     height,
   };
